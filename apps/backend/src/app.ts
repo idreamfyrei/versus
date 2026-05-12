@@ -4,13 +4,15 @@ import helmet from "helmet";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 
-// import { routes } from "./routes";
+import { env } from "./common/config/env.js";
+import { routes } from "./routes.js";
+import { globalErrorHandler } from "./common/utils/response.js";
 
 const app: Express = express();
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: env.CLIENT_URL,
     credentials: true,
   }),
 );
@@ -29,14 +31,14 @@ app.use(
   }),
 );
 
-app.get("/api/health", (req, res) => {
+app.get("/api/health", (_req, res) => {
   res.json({
     status: "ok",
   });
 });
 
+app.use("/api", routes);
 
-
-// app.use("/api", routes);
+app.use(globalErrorHandler);
 
 export default app;

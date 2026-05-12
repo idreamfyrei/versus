@@ -1,8 +1,13 @@
 // eslint.config.mjs
 import eslint from "@eslint/js";
 import tseslint from "typescript-eslint";
+import path from "path";
+import { fileURLToPath } from "url";
 
-export default tseslint.config(
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+export default [
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
   {
@@ -11,7 +16,7 @@ export default tseslint.config(
     languageOptions: {
       parserOptions: {
         project: true,
-        tsconfigRootDir: import.meta.url,
+        tsconfigRootDir: __dirname,
       },
     },
     rules: {
@@ -24,4 +29,4 @@ export default tseslint.config(
     // Ignore build artifacts and config files
     ignores: ["dist/", "node_modules/", "eslint.config.mjs"],
   },
-);
+];
