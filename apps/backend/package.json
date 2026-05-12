@@ -17,7 +17,7 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/morgan": "^1.9.10",
-    "@types/node": "^25.6.2",
+    "@types/node": "^25.7.0",
     "@types/ua-parser-js": "^0.7.39",
     "eslint": "^10.3.0",
     "eslint-config-prettier": "^10.1.8",
@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "@better-auth/mongo-adapter": "^1.6.10",
+    "@versus/shared": "workspace:*",
     "better-auth": "^1.6.10",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
@@ -42,7 +43,6 @@
     "nanoid": "^5.1.11",
     "socket.io": "^4.8.3",
     "ua-parser-js": "^2.0.9",
-    "zod": "^4.4.3",
-    "@versus/shared": "workspace:*"
+    "zod": "^4.4.3"
   }
 }

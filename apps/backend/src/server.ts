@@ -7,14 +7,15 @@ import { env } from "./common/config/env.js";
 
 import { getAuth } from "./common/config/auth.js";
 import { toNodeHandler } from "better-auth/node";
-import { initSocket } from "./module/socket/index.js";
+import { initSocket } from "./modules/socket/index.js";
 
 const startServer = async () => {
   await connectDB();
 
   const auth = getAuth();
 
-  app.all("/api/auth/{*any}", toNodeHandler(auth));
+  // for ex 5 
+  app.all("/api/auth/{*any}", toNodeHandler(auth!));
 
   const server = http.createServer(app);
 
