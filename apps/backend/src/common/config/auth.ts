@@ -1,31 +1,32 @@
-import { env, socialProviders } from "better-auth";
 import { betterAuth } from "better-auth";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
 import mongoose from "mongoose";
+import { env } from "./env.js";
 
-export const createAuth = () => {
-  return betterAuth({
-    database: mongodbAdapter(mongoose.connection.db!),
+let authInstance: ReturnType<typeof betterAuth> | null = null;
 
-    emailAndPassword: {
-      enabled: true,
-      autoSignIn: true,
-    },
-    socialProviders: {
-  google: {
-    clientId: env.GOOGLE_CLIENT_ID!,
-    clientSecret: env.GOOGLE_CLIENT_SECRET!,
-  },
-  github: {
-    clientId: env.GITHUB_CLIENT_ID!,
-    clientSecret: env.GITHUB_CLIENT_SECRET!,
-  },
-},
+export const getAuth = () => {
+  if (!authInstance) {
+    authInstance = betterAuth({
+      database: mongodbAdapter(mongoose.connection.db!),
 
-    trustedOrigins: [process.env.CLIENT_URL!, "http://localhost:5173"],
+      socialProviders: {
+        google: {
+          clientId: env.GOOGLE_CLIENT_ID,
+          clientSecret: env.GOOGLE_CLIENT_SECRET,
+        },
+        github: {
+          clientId: env.GITHUB_CLIENT_ID,
+          clientSecret: env.GITHUB_CLIENT_SECRET,
+        },
+      },
 
-    secret: process.env.BETTER_AUTH_SECRET!,
+      trustedOrigins: [env.CLIENT_URL],
 
-    baseURL: process.env.BETTER_AUTH_URL!,
-  });
+      secret: env.BETTER_AUTH_SECRET,
+
+      baseURL: env.BETTER_AUTH_URL,
+    });
+  }
+  return authInstance;
 };
