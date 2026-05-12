@@ -7,7 +7,7 @@ import { env } from "./common/config/env.js";
 
 import { getAuth } from "./common/config/auth.js";
 import { toNodeHandler } from "better-auth/node";
-import { initSocket } from "./socket/index.js";
+import { initSocket } from "./module/socket/index.js";
 
 const startServer = async () => {
   await connectDB();
