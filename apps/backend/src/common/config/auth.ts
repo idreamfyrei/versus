@@ -3,7 +3,7 @@ import { mongodbAdapter } from "better-auth/adapters/mongodb";
 import mongoose from "mongoose";
 import { env } from "./env.js";
 
-let authInstance: ReturnType<typeof betterAuth> | null = null;
+let authInstance: ReturnType<typeof betterAuth<Record<string, unknown>>> | null = null;
 
 export const getAuth = () => {
   if (!authInstance) {
