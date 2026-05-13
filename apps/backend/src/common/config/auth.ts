@@ -3,7 +3,8 @@ import { mongodbAdapter } from "better-auth/adapters/mongodb";
 import mongoose from "mongoose";
 import { env } from "./env.js";
 
-let authInstance: ReturnType<typeof betterAuth<Record<string, unknown>>> | null = null;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let authInstance: any = null;
 
 export const getAuth = () => {
   if (!authInstance) {

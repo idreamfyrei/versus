@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 import { nanoid } from "nanoid";
 import { createHash } from "crypto";
-import UAParser from "ua-parser-js";
+import pkg from "ua-parser-js";
 import mongoose from "mongoose";
 import { ErrorCode } from "@versus/shared";
 import { Poll, type IPoll } from "../../common/models/poll.model.js";
@@ -9,6 +9,8 @@ import { PollResponse } from "../../common/models/response.model.js";
 import { sendSuccess, throwApiError } from "../../common/utils/response.js";
 import { generateFingerprint } from "../../common/utils/fingerprint.js";
 import { getIO } from "../socket/index.js";
+
+const { UAParser } = pkg;
 
 const hashAdminKey = (key: string) =>
   createHash("sha256").update(key).digest("hex");
@@ -201,8 +203,8 @@ export const getPoll = async (
   next: NextFunction,
 ) => {
   try {
-    const poll = await findPollBySlugOrId(req.params.slugOrId!);
-    if (!poll) throwApiError(404, ErrorCode.POLL_NOT_FOUND);
+    const poll = await findPollBySlugOrId(req.params.slugOrId as string);
+    if (!poll) return throwApiError(404, ErrorCode.POLL_NOT_FOUND);
 
     await checkExpiry(poll);
 
@@ -266,8 +268,8 @@ export const submitResponse = async (
   next: NextFunction,
 ) => {
   try {
-    const poll = await findPollBySlugOrId(req.params.slugOrId!);
-    if (!poll) throwApiError(404, ErrorCode.POLL_NOT_FOUND);
+    const poll = await findPollBySlugOrId(req.params.slugOrId as string);
+    if (!poll) return throwApiError(404, ErrorCode.POLL_NOT_FOUND);
 
     await checkExpiry(poll);
     if (poll.status !== "active") {
@@ -321,7 +323,7 @@ export const submitResponse = async (
         (q) => q._id.toString() === answer.questionId,
       );
       if (!question)
-        throwApiError(
+        return throwApiError(
           400,
           ErrorCode.VALIDATION_ERROR,
           `Question ${answer.questionId} not found`,
@@ -337,8 +339,8 @@ export const submitResponse = async (
         );
     }
 
-    const parser = new UAParser(req.headers["user-agent"]);
-    const uaResult = parser.getResult();
+    const uaString = Array.isArray(req.headers["user-agent"]) ? req.headers["user-agent"][0] : req.headers["user-agent"];
+    const uaResult = UAParser(uaString ?? "");
 
     await PollResponse.create({
       poll: poll._id,
@@ -399,7 +401,7 @@ export const activatePoll = async (
 ) => {
   try {
     const poll = await Poll.findById(req.params.id);
-    if (!poll) throwApiError(404, ErrorCode.POLL_NOT_FOUND);
+    if (!poll) return throwApiError(404, ErrorCode.POLL_NOT_FOUND);
 
     if (poll.status !== "draft")
       throwApiError(
@@ -437,7 +439,7 @@ export const closePoll = async (
 ) => {
   try {
     const poll = await Poll.findById(req.params.id);
-    if (!poll) throwApiError(404, ErrorCode.POLL_NOT_FOUND);
+    if (!poll) return throwApiError(404, ErrorCode.POLL_NOT_FOUND);
     if (poll.status !== "active")
       throwApiError(
         400,
@@ -481,7 +483,7 @@ export const publishPoll = async (
 ) => {
   try {
     const poll = await Poll.findById(req.params.id);
-    if (!poll) throwApiError(404, ErrorCode.POLL_NOT_FOUND);
+    if (!poll) return throwApiError(404, ErrorCode.POLL_NOT_FOUND);
     if (poll.isPublished) throwApiError(400, ErrorCode.POLL_ALREADY_PUBLISHED);
     if (poll.status === "draft")
       throwApiError(400, ErrorCode.POLL_DRAFT, "Cannot publish a draft poll");
@@ -522,7 +524,7 @@ export const deletePoll = async (
 ) => {
   try {
     const poll = await Poll.findById(req.params.id);
-    if (!poll) throwApiError(404, ErrorCode.POLL_NOT_FOUND);
+    if (!poll) return throwApiError(404, ErrorCode.POLL_NOT_FOUND);
     if (!poll.creator || poll.creator.toString() !== req.user!.id)
       throwApiError(403, ErrorCode.FORBIDDEN);
 
@@ -547,7 +549,7 @@ export const claimPoll = async (
   try {
     const { shareId, adminKey } = req.body;
     const poll = await Poll.findOne({ shareId });
-    if (!poll) throwApiError(404, ErrorCode.POLL_NOT_FOUND);
+    if (!poll) return throwApiError(404, ErrorCode.POLL_NOT_FOUND);
     if (poll.creator)
       throwApiError(400, ErrorCode.FORBIDDEN, "Poll already has an owner");
     if (!poll.adminKeyHash || hashAdminKey(adminKey) !== poll.adminKeyHash) {
@@ -571,7 +573,7 @@ export const getAnalytics = async (
 ) => {
   try {
     const poll = await Poll.findById(req.params.id);
-    if (!poll) throwApiError(404, ErrorCode.POLL_NOT_FOUND);
+    if (!poll) return throwApiError(404, ErrorCode.POLL_NOT_FOUND);
     if (!poll.creator || poll.creator.toString() !== req.user!.id)
       throwApiError(403, ErrorCode.FORBIDDEN);
 
