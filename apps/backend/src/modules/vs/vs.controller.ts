@@ -468,7 +468,9 @@ export const closePoll = async (
       getIO()
         .to(`vs:${poll._id.toString()}`)
         .emit("poll:closed", { status: "closed" });
-    } catch {}
+    } catch {
+      // socket not available, continue
+    }
 
     sendSuccess(res, { poll }, "Poll closed");
   } catch (error) {
@@ -509,7 +511,9 @@ export const publishPoll = async (
       getIO()
         .to(`vs:${poll._id.toString()}`)
         .emit("poll:published", { status: "published" });
-    } catch {}
+    } catch {
+      // socket not available, continue
+    }
 
     sendSuccess(res, { poll }, "Results published");
   } catch (error) {
@@ -530,7 +534,10 @@ export const deletePoll = async (
 
     try {
       getIO().to(`vs:${poll._id.toString()}`).emit("poll:deleted", {});
-    } catch {}
+    } catch {
+      // socket not available, continue
+
+    }
 
     await PollResponse.deleteMany({ poll: poll._id });
     await poll.deleteOne();
