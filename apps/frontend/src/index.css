@@ -2,16 +2,70 @@
 
 @theme {
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;
-  --color-primary: #4f46e5;
-  --color-primary-light: #818cf8;
-  --color-primary-dark: #3730a3;
+
+  /* Core palette */
+  --color-background: oklch(0.96 0.002 247);
+  --color-foreground: oklch(0.12 0.01 250);
+  --color-card: oklch(1 0 0);
+  --color-card-foreground: oklch(0.12 0.01 250);
+  --color-muted: oklch(0.93 0.005 247);
+  --color-muted-foreground: oklch(0.45 0.02 257);
+  --color-secondary: oklch(0.94 0.005 247);
+
+  /* Brand */
+  --color-vs-blue: oklch(0.5 0.24 264);
+  --color-vs-pink: oklch(0.85 0.08 340);
+  --color-primary: oklch(0.5 0.24 264);
+  --color-primary-light: oklch(0.6 0.2 264);
+  --color-primary-dark: oklch(0.4 0.24 264);
+
+  /* Semantic */
   --color-accent: #8b5cf6;
   --color-success: #10b981;
   --color-warning: #f59e0b;
   --color-danger: #ef4444;
-  --color-surface: #f8fafc;
-  --color-surface-dark: #f1f5f9;
-  --color-border: #e2e8f0;
+  --color-surface: oklch(0.96 0.002 247);
+  --color-surface-dark: oklch(0.94 0.005 247);
+  --color-border: oklch(0.929 0.013 255.508);
+}
+
+@layer base {
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4 {
+    letter-spacing: -0.04em;
+  }
+}
+
+/* ---- Keyframes ---- */
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-slide-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
 
 @keyframes pulse-counter {
@@ -24,25 +78,58 @@
   from { width: 0%; }
 }
 
-@keyframes fade-slide-in {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+@keyframes bar-fill {
+  from { width: 0%; }
+  to { width: var(--bar-width); }
 }
 
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+@keyframes icon-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 var(--pulse-color, oklch(0.5 0.24 264 / 0.4)); }
+  50% { box-shadow: 0 0 0 12px var(--pulse-color, oklch(0.5 0.24 264 / 0)); }
 }
 
-@keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+@keyframes icon-pulse-outer {
+  0%, 100% { box-shadow: 0 0 0 0 var(--pulse-color, oklch(0.5 0.24 264 / 0.2)); }
+  50% { box-shadow: 0 0 0 22px var(--pulse-color, oklch(0.5 0.24 264 / 0)); }
+}
+
+@keyframes float-wave {
+  0%, 100% { transform: translateX(0) translateY(0); }
+  50% { transform: translateX(-30px) translateY(-15px); }
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(1.6); }
+}
+
+@keyframes wave-draw {
+  from { stroke-dashoffset: 3000; }
+  to { stroke-dashoffset: 0; }
+}
+
+/* ---- Utilities ---- */
+
+@utility animate-slide-up {
+  animation: slide-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@utility animate-fade-slide-in {
+  animation: fade-slide-in 0.4s ease-out both;
+}
+
+@utility animate-fade-in {
+  animation: fade-in 0.3s ease-out both;
+}
+
+@utility animate-scale-in {
+  animation: scale-in 0.5s ease-out both;
+}
+
+@utility animate-shimmer {
+  background: linear-gradient(90deg, oklch(0.94 0.005 247) 25%, oklch(0.929 0.013 255.508) 50%, oklch(0.94 0.005 247) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
 }
 
 @utility animate-pulse-counter {
@@ -53,16 +140,29 @@
   animation: grow-bar 0.6s ease-out;
 }
 
-@utility animate-fade-slide-in {
-  animation: fade-slide-in 0.3s ease-out;
+@utility animate-bar-fill {
+  animation: bar-fill 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-@utility animate-shimmer {
-  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
+@utility animate-icon-pulse {
+  animation: icon-pulse 2.5s ease-in-out infinite;
 }
 
-@utility animate-fade-in {
-  animation: fade-in 0.2s ease-out;
+@utility animate-icon-pulse-outer {
+  animation: icon-pulse-outer 2.5s ease-in-out infinite 0.3s;
+}
+
+@utility animate-pulse-dot {
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@utility animate-wave-draw {
+  stroke-dasharray: 3000;
+  animation: wave-draw 2.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@utility animate-wave-draw-delay {
+  stroke-dasharray: 3000;
+  animation: wave-draw 2.5s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
+  stroke-dashoffset: 3000;
 }

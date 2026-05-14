@@ -12,53 +12,53 @@ export function Navbar() {
   };
 
   return (
-    <nav className="border-b border-border bg-white/80 backdrop-blur-sm sticky top-0 z-50">
-      <div className="mx-auto max-w-6xl px-4 h-16 flex items-center justify-between">
-        <Link to="/" className="text-xl font-bold tracking-tight text-primary-dark">
-          Versus.
+    <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-md">
+      <div className="mx-auto max-w-6xl px-4 md:px-8 h-16 flex items-center justify-between">
+        <Link to="/" className="text-xl font-black tracking-tight">
+          VERSUS.
         </Link>
 
         <div className="flex items-center gap-3">
           {isLoading ? (
-            <div className="h-8 w-20 rounded-lg animate-shimmer" />
+            <div className="h-8 w-20 rounded-full animate-shimmer" />
           ) : isAuthenticated ? (
             <>
               <Link
                 to="/vs/new"
-                className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg bg-primary text-white hover:bg-primary-dark transition-colors"
+                className="flex items-center gap-1.5 px-4 py-2 text-sm font-bold tracking-wide rounded-full bg-foreground text-background hover:opacity-90 transition-opacity"
               >
-                <Plus size={16} />
-                Create
+                <Plus size={15} />
+                CREATE
               </Link>
               <Link
                 to="/dashboard"
-                className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg hover:bg-surface-dark transition-colors"
+                className="flex items-center gap-1.5 px-3 py-2 text-sm font-semibold rounded-full hover:bg-secondary transition-colors"
               >
-                <LayoutDashboard size={16} />
+                <LayoutDashboard size={15} />
                 Dashboard
               </Link>
-              <span className="text-sm text-gray-600 hidden sm:block">{user?.name}</span>
+              <span className="text-sm text-muted-foreground hidden sm:block">{user?.name}</span>
               <button
                 onClick={handleLogout}
-                className="p-2 rounded-lg hover:bg-surface-dark transition-colors text-gray-500"
+                className="p-2 rounded-full hover:bg-secondary transition-colors text-muted-foreground"
                 title="Log out"
               >
-                <LogOut size={16} />
+                <LogOut size={15} />
               </button>
             </>
           ) : (
             <>
               <Link
-                to="/vs/new"
-                className="px-3 py-1.5 text-sm font-medium rounded-lg hover:bg-surface-dark transition-colors"
+                to="/login"
+                className="text-sm font-semibold tracking-wide hover:opacity-60 transition-opacity"
               >
-                Quick Poll
+                LOG IN
               </Link>
               <Link
-                to="/login"
-                className="px-4 py-1.5 text-sm font-medium rounded-lg bg-primary text-white hover:bg-primary-dark transition-colors"
+                to="/vs/new"
+                className="rounded-full bg-foreground px-6 py-2.5 text-sm font-bold tracking-wide text-background hover:opacity-90 transition-opacity"
               >
-                Log in
+                SIGN UP
               </Link>
             </>
           )}

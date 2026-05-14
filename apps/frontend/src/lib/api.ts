@@ -18,10 +18,10 @@ async function request<T>(
   const json = (await res.json()) as ApiResponse<T>;
 
   if (!json.success) {
-    throw json.error;
+    throw (json as { success: false; error: { code: string; message: string } }).error;
   }
 
-  return json.data;
+  return (json as { success: true; data: T }).data;
 }
 
 export const api = {
