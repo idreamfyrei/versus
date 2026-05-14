@@ -245,7 +245,17 @@ export function Analytics() {
                 <p className="text-xs text-muted-foreground mb-4">Peak: {new Date(analytics.peakTime).toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}</p>
               )}
               <ResponsiveContainer width="100%" height={200}>
-                <AreaChart data={analytics.responseVelocity.map(v => ({ ...v, label: new Date(v.timestamp).toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric" }) }))}>
+                <AreaChart data={analytics.responseVelocity.map(v => {
+                  const d = new Date(v.timestamp);
+                  const isDaily = v.timestamp.endsWith("T00:00:00Z");
+                  const isMinute = /T\d{2}:\d{2}:00Z$/.test(v.timestamp) && !v.timestamp.endsWith(":00:00Z");
+                  const label = isDaily
+                    ? d.toLocaleDateString(undefined, { month: "short", day: "numeric" })
+                    : isMinute
+                      ? d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })
+                      : d.toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric" });
+                  return { ...v, label };
+                })}>
                   <defs>
                     <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="oklch(0.55 0.15 264)" stopOpacity={0.12} />

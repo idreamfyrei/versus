@@ -603,16 +603,22 @@ export const getAnalytics = async (
       { $group: { _id: "$device.browser", count: { $sum: 1 } } },
     ]);
 
+    const pollAgeHours =
+      (Date.now() - poll.createdAt.getTime()) / (1000 * 60 * 60);
+    const velocityFormat =
+      pollAgeHours <= 6
+        ? "%Y-%m-%dT%H:%M:00Z"
+        : pollAgeHours <= 48
+          ? "%Y-%m-%dT%H:00:00Z"
+          : "%Y-%m-%dT00:00:00Z";
+
     const responseVelocity = await PollResponse.aggregate([
       { $match: { poll: pollId } },
       {
         $group: {
           _id: {
             $dateToString: {
-              format:
-                poll.createdAt.getTime() > Date.now() - 24 * 60 * 60 * 1000
-                  ? "%Y-%m-%dT%H:00:00Z"
-                  : "%Y-%m-%dT00:00:00Z",
+              format: velocityFormat,
               date: "$submittedAt",
             },
           },
