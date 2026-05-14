@@ -44,7 +44,13 @@ const ResponseSchema = new Schema<IResponse>(
   { timestamps: true },
 );
 
-ResponseSchema.index({ poll: 1, respondent: 1 }, { unique: true, sparse: true });
-ResponseSchema.index({ poll: 1, fingerprint: 1 }, { unique: true, sparse: true });
+ResponseSchema.index(
+  { poll: 1, respondent: 1 },
+  { unique: true, partialFilterExpression: { respondent: { $type: "objectId" } } },
+);
+ResponseSchema.index(
+  { poll: 1, fingerprint: 1 },
+  { unique: true, partialFilterExpression: { fingerprint: { $type: "string" } } },
+);
 
 export const PollResponse = mongoose.model<IResponse>("Response", ResponseSchema);

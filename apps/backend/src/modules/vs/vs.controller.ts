@@ -417,7 +417,7 @@ export const activatePoll = async (
       if (!req.user || poll.creator.toString() !== req.user.id)
         throwApiError(403, ErrorCode.FORBIDDEN);
     } else {
-      const adminKey = req.body.adminKey as string | undefined;
+      const adminKey = req.body?.adminKey as string | undefined;
       if (
         !adminKey ||
         !poll.adminKeyHash ||
@@ -454,7 +454,7 @@ export const closePoll = async (
       if (!req.user || poll.creator.toString() !== req.user.id)
         throwApiError(403, ErrorCode.FORBIDDEN);
     } else {
-      const adminKey = req.body.adminKey as string | undefined;
+      const adminKey = req.body?.adminKey as string | undefined;
       if (
         !adminKey ||
         !poll.adminKeyHash ||
@@ -497,7 +497,7 @@ export const publishPoll = async (
       if (!req.user || poll.creator.toString() !== req.user.id)
         throwApiError(403, ErrorCode.FORBIDDEN);
     } else {
-      const adminKey = req.body.adminKey as string | undefined;
+      const adminKey = req.body?.adminKey as string | undefined;
       if (
         !adminKey ||
         !poll.adminKeyHash ||

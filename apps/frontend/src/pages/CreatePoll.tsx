@@ -127,9 +127,7 @@ export function CreatePoll() {
     if (!savedPoll) return;
     setActivating(true);
     try {
-      const headers: Record<string, string> = {};
-      if (adminKey) headers["x-admin-key"] = adminKey;
-      await api.patch(`/vs/${savedPoll._id}/activate`, undefined);
+      await api.patch(`/vs/${savedPoll._id}/activate`, adminKey ? { adminKey } : undefined);
       toast.success("Poll is live!");
       navigate(isAuthenticated ? "/dashboard" : `/vs/${savedPoll.slug || savedPoll.shareId}`);
     } catch (err: any) {

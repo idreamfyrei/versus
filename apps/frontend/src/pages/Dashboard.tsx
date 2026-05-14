@@ -77,7 +77,7 @@ function PollCard({ poll, onDelete }: { poll: PollListItem; onDelete: (id: strin
         )}
       </div>
 
-      <div className="mt-auto flex items-center gap-2 pt-3 border-t border-border">
+      <div className="mt-auto flex items-center gap-4 pt-3 border-t border-border">
         {poll.status === "draft" ? (
           <Link
             to={`/vs/new?edit=${poll._id}`}
