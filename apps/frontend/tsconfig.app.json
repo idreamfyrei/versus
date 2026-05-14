@@ -16,10 +16,7 @@
     "jsx": "react-jsx",
 
     /* Paths */
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"]
-    },
+    "paths": { "*": ["./*"] },
 
     /* Linting */
     "noUnusedLocals": true,
