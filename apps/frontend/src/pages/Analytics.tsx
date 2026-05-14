@@ -242,20 +242,20 @@ export function Analytics() {
             <SectionCard className="lg:col-span-2">
               <h3 className="font-bold mb-1">Response Momentum</h3>
               {analytics.peakTime && (
-                <p className="text-xs text-muted-foreground mb-4">Peak: {analytics.peakTime}</p>
+                <p className="text-xs text-muted-foreground mb-4">Peak: {new Date(analytics.peakTime).toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}</p>
               )}
               <ResponsiveContainer width="100%" height={200}>
-                <AreaChart data={analytics.responseVelocity}>
+                <AreaChart data={analytics.responseVelocity.map(v => ({ ...v, label: new Date(v.timestamp).toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric" }) }))}>
                   <defs>
                     <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="oklch(0.5 0.24 264)" stopOpacity={0.15} />
-                      <stop offset="95%" stopColor="oklch(0.5 0.24 264)" stopOpacity={0} />
+                      <stop offset="5%" stopColor="oklch(0.55 0.15 264)" stopOpacity={0.12} />
+                      <stop offset="95%" stopColor="oklch(0.55 0.15 264)" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <XAxis dataKey="timestamp" tick={{ fontSize: 11, fill: "oklch(0.45 0.02 257)" }} tickLine={false} axisLine={false} />
+                  <XAxis dataKey="label" tick={{ fontSize: 11, fill: "oklch(0.45 0.02 257)" }} tickLine={false} axisLine={false} />
                   <YAxis tick={{ fontSize: 11, fill: "oklch(0.45 0.02 257)" }} tickLine={false} axisLine={false} allowDecimals={false} width={30} />
-                  <Tooltip contentStyle={tooltipStyle} />
-                  <Area type="monotone" dataKey="count" stroke="oklch(0.5 0.24 264)" strokeWidth={2.5} fill="url(#colorCount)" dot={{ r: 4, fill: "oklch(0.5 0.24 264)", strokeWidth: 0 }} />
+                  <Tooltip contentStyle={tooltipStyle} formatter={(value: any) => [value, "Responses"]} labelFormatter={(label: any) => label} />
+                  <Area type="monotone" dataKey="count" stroke="oklch(0.55 0.15 264)" strokeWidth={2.5} fill="url(#colorCount)" dot={{ r: 4, fill: "oklch(0.55 0.15 264)", strokeWidth: 0 }} />
                 </AreaChart>
               </ResponsiveContainer>
             </SectionCard>
@@ -309,7 +309,7 @@ export function Analytics() {
                   <XAxis type="number" hide />
                   <YAxis type="category" dataKey="optionText" tick={{ fontSize: 13, fontWeight: 500 }} width={140} tickLine={false} axisLine={false} />
                   <Tooltip contentStyle={tooltipStyle} formatter={(value: any, _: any, props: any) => [`${value} (${props.payload.percentage}%)`, "Votes"]} />
-                  <Bar dataKey="count" fill="oklch(0.5 0.24 264)" radius={[0, 8, 8, 0]} barSize={28} />
+                  <Bar dataKey="count" fill="oklch(0.55 0.15 264)" radius={[0, 8, 8, 0]} barSize={28} />
                 </BarChart>
               </ResponsiveContainer>
             </SectionCard>

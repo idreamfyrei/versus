@@ -58,7 +58,7 @@ export function Navbar() {
                 to="/vs/new"
                 className="rounded-full bg-foreground px-6 py-2.5 text-sm font-bold tracking-wide text-background hover:opacity-90 transition-opacity"
               >
-                SIGN UP
+                QUICK POLL
               </Link>
             </>
           )}

@@ -100,57 +100,59 @@ function BentoCard({ variant, badge, metric, metricSuffix, subtitle, desc, icon,
   };
 
   return (
-    <div
-      ref={ref}
-      onMouseMove={onMove}
-      onMouseEnter={() => setHovering(true)}
-      onMouseLeave={() => { setTilt({ x: 0, y: 0 }); setHovering(false); }}
-      className={`group relative flex h-[380px] flex-col rounded-3xl p-7 ${s.bg} ${s.text} cursor-pointer overflow-hidden animate-slide-up`}
-      style={{
-        animationDelay: `${delay}ms`,
-        transform: `perspective(800px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) ${hovering ? "scale(1.02)" : "scale(1)"}`,
-        transition: "transform 0.2s ease-out, box-shadow 0.3s ease",
-        boxShadow: hovering
-          ? "0 25px 50px -15px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.03)"
-          : "0 8px 30px -15px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.03)",
-      }}
-    >
-      {badge && (
-        <span
-          className="absolute right-5 top-5 rounded-full bg-foreground px-3 py-1 text-[10px] font-bold tracking-widest text-background z-10"
-          style={{ transform: `translateZ(${hovering ? 60 : 0}px)` }}
-        >
-          {badge}
-        </span>
-      )}
-
+    <div className="animate-slide-up" style={{ animationDelay: `${delay}ms`, perspective: "800px" }}>
       <div
-        className="flex flex-1 items-center justify-center"
-        style={{ transform: `translateZ(${hovering ? 50 : 0}px)`, transition: "transform 0.2s ease-out" }}
+        ref={ref}
+        onMouseMove={onMove}
+        onMouseEnter={() => setHovering(true)}
+        onMouseLeave={() => { setTilt({ x: 0, y: 0 }); setHovering(false); }}
+        className={`group relative flex h-[380px] flex-col rounded-3xl p-7 ${s.bg} ${s.text} cursor-pointer overflow-hidden`}
+        style={{
+          transform: `rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) ${hovering ? "scale(1.02)" : "scale(1)"}`,
+          transition: "transform 0.2s ease-out, box-shadow 0.3s ease",
+          transformStyle: "preserve-3d",
+          boxShadow: hovering
+            ? "0 25px 50px -15px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.03)"
+            : "0 8px 30px -15px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.03)",
+        }}
       >
+        {badge && (
+          <span
+            className="absolute right-5 top-5 rounded-full bg-foreground px-3 py-1 text-[10px] font-bold tracking-widest text-background z-10"
+            style={{ transform: `translateZ(${hovering ? 60 : 0}px)`, transition: "transform 0.2s ease-out" }}
+          >
+            {badge}
+          </span>
+        )}
+
         <div
-          className={`flex h-24 w-24 items-center justify-center rounded-full border-2 border-dashed ${s.icon} transition-all duration-500 group-hover:rotate-[8deg] group-hover:scale-110`}
-          style={{
-            boxShadow: hovering ? `0 0 40px ${s.glow}` : "none",
-            transition: "box-shadow 0.4s ease, transform 0.5s ease",
-          }}
+          className="flex flex-1 items-center justify-center"
+          style={{ transform: `translateZ(${hovering ? 50 : 0}px)`, transition: "transform 0.2s ease-out" }}
         >
-          {icon}
+          <div
+            className={`flex h-24 w-24 items-center justify-center rounded-full border-2 border-dashed ${s.icon} transition-all duration-500 group-hover:rotate-[8deg] group-hover:scale-110`}
+            style={{
+              boxShadow: hovering ? `0 0 40px ${s.glow}` : "none",
+              transition: "box-shadow 0.4s ease, transform 0.5s ease",
+            }}
+          >
+            {icon}
+          </div>
         </div>
-      </div>
 
-      <div
-        style={{ transform: `translateZ(${hovering ? 30 : 0}px)`, transition: "transform 0.2s ease-out" }}
-        className="space-y-2"
-      >
-        <div className="text-3xl font-black tracking-tight">
-          {metric}
-          {metricSuffix && <span className="ml-1">{metricSuffix}</span>}
+        <div
+          style={{ transform: `translateZ(${hovering ? 30 : 0}px)`, transition: "transform 0.2s ease-out" }}
+          className="space-y-2"
+        >
+          <div className="text-3xl font-black tracking-tight">
+            {metric}
+            {metricSuffix && <span className="ml-1">{metricSuffix}</span>}
+          </div>
+          <div className={`inline-flex w-fit rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] ${s.label}`}>
+            {subtitle}
+          </div>
+          <p className={`text-sm leading-relaxed ${s.sub}`}>{desc}</p>
         </div>
-        <div className={`inline-flex w-fit rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] ${s.label}`}>
-          {subtitle}
-        </div>
-        <p className={`text-sm leading-relaxed ${s.sub}`}>{desc}</p>
       </div>
     </div>
   );
