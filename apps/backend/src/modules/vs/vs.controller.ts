@@ -228,6 +228,13 @@ export const getPoll = async (
         respondent: req.user.id,
       });
       hasResponded = !!existing;
+    } else if (poll.isAnonymous) {
+      const fp = generateFingerprint(req);
+      const existing = await PollResponse.findOne({
+        poll: poll._id,
+        fingerprint: fp,
+      });
+      hasResponded = !!existing;
     }
 
     const adminKey = req.query.key as string | undefined;
@@ -293,8 +300,9 @@ export const submitResponse = async (
       if (existing) throwApiError(409, ErrorCode.ALREADY_RESPONDED);
     }
 
-    const fingerprint = generateFingerprint(req);
+    let fingerprint: string | undefined;
     if (poll.isAnonymous) {
+      fingerprint = generateFingerprint(req);
       const existing = await PollResponse.findOne({
         poll: poll._id,
         fingerprint,
@@ -347,8 +355,8 @@ export const submitResponse = async (
 
     await PollResponse.create({
       poll: poll._id,
-      respondent: req.user?.id ?? null,
-      fingerprint,
+      respondent: req.user?.id || undefined,
+      ...(fingerprint && { fingerprint }),
       device: {
         type: uaResult.device.type ?? "desktop",
         browser: uaResult.browser.name ?? "unknown",
