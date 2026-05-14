@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 import { useAuth } from "@/hooks/useAuth";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
-import { Plus, Trash2, ArrowLeft, ArrowRight, Rocket, Copy, Check, AlertTriangle, Sparkles } from "lucide-react";
+import { Plus, Trash2, ArrowLeft, ArrowRight, Rocket, Copy, Check, AlertTriangle, Sparkles, ExternalLink, Share2, PartyPopper } from "lucide-react";
 import type { Poll, CreatePollInput, CreatePollResponse } from "@versus/shared";
 
 interface QuestionDraft {
@@ -27,7 +27,7 @@ export function CreatePoll() {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
 
-  const [step, setStep] = useState<1 | 2>(1);
+  const [step, setStep] = useState<1 | 2 | 3>(1);
   const [saving, setSaving] = useState(false);
   const [activating, setActivating] = useState(false);
 
@@ -44,6 +44,7 @@ export function CreatePoll() {
   const [adminKey, setAdminKey] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [copiedKey, setCopiedKey] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
 
   const validate = (): boolean => {
     const e: Record<string, string> = {};
@@ -129,7 +130,7 @@ export function CreatePoll() {
     try {
       await api.patch(`/vs/${savedPoll._id}/activate`, adminKey ? { adminKey } : undefined);
       toast.success("Poll is live!");
-      navigate(isAuthenticated ? "/dashboard" : `/vs/${savedPoll.slug || savedPoll.shareId}`);
+      setStep(3);
     } catch (err: any) {
       toast.error(err?.message || "Failed to activate poll");
     } finally {
@@ -235,6 +236,89 @@ export function CreatePoll() {
             <Rocket size={18} />
             {activating ? "Going live..." : "Go Public"}
           </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (step === 3 && savedPoll) {
+    const copyShareLink = async () => {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopiedLink(true);
+      toast.success("Link copied to clipboard!");
+      setTimeout(() => setCopiedLink(false), 2000);
+    };
+
+    return (
+      <div className="mx-auto max-w-lg px-4 sm:px-8 py-16 text-center animate-fade-slide-in">
+        <div className="mx-auto w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center mb-6">
+          <PartyPopper size={28} className="text-emerald-600" />
+        </div>
+
+        <h1 className="text-3xl font-black tracking-tight mb-2">Your poll is live!</h1>
+        <p className="text-muted-foreground mb-8">Share the link below and start collecting responses.</p>
+
+        <div className="bg-card border border-border rounded-2xl p-5 mb-6 text-left">
+          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 block">Share link</label>
+          <div className="flex items-center gap-2">
+            <code className="flex-1 bg-secondary px-4 py-2.5 rounded-xl text-sm font-mono truncate select-all">
+              {shareUrl}
+            </code>
+            <button
+              onClick={copyShareLink}
+              className="shrink-0 flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-foreground text-background text-sm font-semibold hover:opacity-90 transition-all"
+            >
+              {copiedLink ? <Check size={14} /> : <Copy size={14} />}
+              {copiedLink ? "Copied" : "Copy"}
+            </button>
+          </div>
+        </div>
+
+        {adminKey && (
+          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 mb-6 text-left">
+            <div className="flex items-start gap-3">
+              <AlertTriangle size={18} className="text-amber-600 shrink-0 mt-0.5" />
+              <div>
+                <p className="font-bold text-amber-800 text-sm">Don't lose your admin key</p>
+                <p className="text-xs text-amber-700 mt-1">You need this to manage your poll since you're not signed in.</p>
+                <div className="mt-2 flex items-center gap-2">
+                  <code className="bg-white px-3 py-1.5 rounded-lg text-xs font-mono border border-amber-200 select-all truncate">
+                    {adminKey}
+                  </code>
+                  <button onClick={copyAdminKey} className="p-1.5 rounded-lg hover:bg-amber-100 transition-colors">
+                    {copiedKey ? <Check size={14} className="text-emerald-600" /> : <Copy size={14} className="text-amber-700" />}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="flex flex-col sm:flex-row gap-3">
+          <a
+            href={shareUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full border border-border font-semibold text-sm hover:bg-secondary transition-all"
+          >
+            <ExternalLink size={16} />
+            View Poll
+          </a>
+          {isAuthenticated ? (
+            <button
+              onClick={() => navigate("/dashboard")}
+              className="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-foreground text-background font-bold text-sm hover:opacity-90 transition-all"
+            >
+              Go to Dashboard
+            </button>
+          ) : (
+            <button
+              onClick={() => navigate("/login")}
+              className="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-foreground text-background font-bold text-sm hover:opacity-90 transition-all"
+            >
+              Sign in to claim poll
+            </button>
+          )}
         </div>
       </div>
     );

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { api } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
-import { Plus, Copy, Check, BarChart3, ExternalLink, Trash2, Inbox } from "lucide-react";
+import { Plus, Copy, Check, BarChart3, ExternalLink, Trash2, Inbox, KeyRound } from "lucide-react";
 import { toast } from "sonner";
 import type { PollListItem, PollStatus } from "@versus/shared";
 
@@ -130,6 +130,10 @@ export function Dashboard() {
   const [polls, setPolls] = useState<PollListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<PollStatus | "all">("all");
+  const [showClaim, setShowClaim] = useState(false);
+  const [claimShareId, setClaimShareId] = useState("");
+  const [claimAdminKey, setClaimAdminKey] = useState("");
+  const [claiming, setClaiming] = useState(false);
 
   useEffect(() => {
     api.get<PollListItem[]>("/vs").then(setPolls).catch(() => toast.error("Failed to load polls")).finally(() => setLoading(false));
@@ -143,6 +147,27 @@ export function Dashboard() {
       toast.success("Poll deleted");
     } catch {
       toast.error("Failed to delete poll");
+    }
+  };
+
+  const handleClaim = async () => {
+    if (!claimShareId.trim() || !claimAdminKey.trim()) {
+      toast.error("Both fields are required");
+      return;
+    }
+    setClaiming(true);
+    try {
+      await api.post("/vs/claim", { shareId: claimShareId.trim(), adminKey: claimAdminKey.trim() });
+      toast.success("Poll claimed! It now appears in your dashboard.");
+      setShowClaim(false);
+      setClaimShareId("");
+      setClaimAdminKey("");
+      const updated = await api.get<PollListItem[]>("/vs");
+      setPolls(updated);
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to claim poll. Check your share ID and admin key.");
+    } finally {
+      setClaiming(false);
     }
   };
 
@@ -162,14 +187,58 @@ export function Dashboard() {
               : `${activeCount} active poll${activeCount !== 1 ? "s" : ""} collecting ${totalResponses} total response${totalResponses !== 1 ? "s" : ""}.`}
           </p>
         </div>
-        <Link
-          to="/vs/new"
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-foreground text-background font-bold text-sm tracking-wide hover:opacity-90 transition-all hover:scale-[1.02] active:scale-[0.98]"
-        >
-          <Plus size={16} />
-          New Poll
-        </Link>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setShowClaim((v) => !v)}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-border font-semibold text-sm hover:bg-secondary transition-all"
+          >
+            <KeyRound size={16} />
+            Claim Poll
+          </button>
+          <Link
+            to="/vs/new"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-foreground text-background font-bold text-sm tracking-wide hover:opacity-90 transition-all hover:scale-[1.02] active:scale-[0.98]"
+          >
+            <Plus size={16} />
+            New Poll
+          </Link>
+        </div>
       </div>
+
+      {showClaim && (
+        <div className="bg-card border border-border rounded-2xl p-5 mb-8 animate-fade-slide-in">
+          <div className="flex items-start gap-3 mb-4">
+            <KeyRound size={20} className="text-primary shrink-0 mt-0.5" />
+            <div>
+              <p className="font-bold text-sm">Claim an anonymous poll</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Created a poll without signing in? Enter the share ID and admin key to link it to your account.</p>
+            </div>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <input
+              type="text"
+              placeholder="Share ID (from the poll URL)"
+              value={claimShareId}
+              onChange={(e) => setClaimShareId(e.target.value)}
+              className="flex-1 px-4 py-2.5 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+            />
+            <input
+              type="text"
+              placeholder="Admin key"
+              value={claimAdminKey}
+              onChange={(e) => setClaimAdminKey(e.target.value)}
+              className="flex-1 px-4 py-2.5 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+            />
+            <button
+              onClick={handleClaim}
+              disabled={claiming}
+              className="px-5 py-2.5 rounded-xl bg-foreground text-background font-semibold text-sm hover:opacity-90 transition-all disabled:opacity-60"
+            >
+              {claiming ? "Claiming..." : "Claim"}
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="flex gap-2 mb-8 overflow-x-auto pb-1">
         {FILTERS.map((f) => (
