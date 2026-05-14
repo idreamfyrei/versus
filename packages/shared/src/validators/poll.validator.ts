@@ -80,6 +80,23 @@ export const createPollSchema = z.object({
     .describe("The ISO datetime when the poll should expire."),
 }).describe("Payload for creating a poll.");
 
+export const updatePollSchema = z.object({
+  title: z.string().min(1).max(200).optional(),
+  description: z.string().max(2000).optional(),
+  questions: z.array(questionInputSchema).min(1).max(50).optional(),
+  isAnonymous: z.boolean().optional(),
+  showCreatorName: z.boolean().optional(),
+  enableToast: z.boolean().optional(),
+  slug: slugSchema.optional(),
+  expiresAt: z
+    .string()
+    .pipe(z.iso.datetime())
+    .refine((val) => new Date(val) > new Date(), "Expiry must be in the future")
+    .optional(),
+}).describe("Payload for updating a draft poll.");
+
+export type UpdatePollInput = z.infer<typeof updatePollSchema>;
+
 export const claimPollSchema = z.object({
   shareId: z.string().min(1).describe("The public share identifier of the poll."),
   adminKey: z.string().min(1).describe("The admin key used to claim poll ownership."),

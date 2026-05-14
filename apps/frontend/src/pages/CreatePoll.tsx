@@ -112,9 +112,15 @@ export function CreatePoll() {
         expiresAt: new Date(expiresAt).toISOString(),
       };
 
-      const data = await api.post<CreatePollResponse>("/vs", body);
-      setSavedPoll(data.poll);
-      if (data.adminKey) setAdminKey(data.adminKey);
+      if (savedPoll) {
+        const updateBody = adminKey ? { ...body, adminKey } : body;
+        const data = await api.patch<{ poll: Poll }>(`/vs/${savedPoll._id}`, updateBody);
+        setSavedPoll(data.poll);
+      } else {
+        const data = await api.post<CreatePollResponse>("/vs", body);
+        setSavedPoll(data.poll);
+        if (data.adminKey) setAdminKey(data.adminKey);
+      }
       setStep(2);
       toast.success("Draft saved!");
     } catch (err: any) {

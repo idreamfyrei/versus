@@ -34,6 +34,7 @@ export type {
 
 export {
   createPollSchema,
+  updatePollSchema,
   claimPollSchema,
 } from "./validators/poll.validator.js";
 

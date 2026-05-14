@@ -115,7 +115,17 @@ export const createPoll = async (
 
     if (slug) {
       const existing = await Poll.findOne({ slug });
-      if (existing) throwApiError(409, ErrorCode.SLUG_TAKEN);
+      if (existing) {
+        const isAbandonedDraft =
+          existing.status === "draft" &&
+          !existing.creator &&
+          existing.createdAt.getTime() < Date.now() - 60 * 60 * 1000;
+        if (isAbandonedDraft) {
+          await Poll.deleteOne({ _id: existing._id });
+        } else {
+          throwApiError(409, ErrorCode.SLUG_TAKEN);
+        }
+      }
     }
 
     const shareId = nanoid(10);
@@ -159,6 +169,69 @@ export const createPoll = async (
       "Poll created",
       201,
     );
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updatePoll = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const poll = await Poll.findById(req.params.id);
+    if (!poll) return throwApiError(404, ErrorCode.POLL_NOT_FOUND);
+
+    if (poll.status !== "draft")
+      throwApiError(400, ErrorCode.POLL_NOT_ACTIVE, "Only draft polls can be edited");
+
+    if (poll.creator) {
+      if (!req.user || poll.creator.toString() !== req.user.id)
+        throwApiError(403, ErrorCode.FORBIDDEN);
+    } else {
+      const adminKey = req.body?.adminKey as string | undefined;
+      if (!adminKey || !poll.adminKeyHash || hashAdminKey(adminKey) !== poll.adminKeyHash)
+        throwApiError(403, ErrorCode.INVALID_ADMIN_KEY);
+    }
+
+    const { title, description, questions, isAnonymous, showCreatorName, enableToast, slug, expiresAt } = req.body;
+
+    if (slug && slug !== poll.slug) {
+      const existing = await Poll.findOne({ slug, _id: { $ne: poll._id } });
+      if (existing) {
+        const isAbandonedDraft =
+          existing.status === "draft" &&
+          !existing.creator &&
+          existing.createdAt.getTime() < Date.now() - 60 * 60 * 1000;
+        if (isAbandonedDraft) {
+          await Poll.deleteOne({ _id: existing._id });
+        } else {
+          throwApiError(409, ErrorCode.SLUG_TAKEN);
+        }
+      }
+    }
+
+    if (title !== undefined) poll.title = title;
+    if (description !== undefined) poll.description = description;
+    if (isAnonymous !== undefined) poll.isAnonymous = isAnonymous;
+    if (showCreatorName !== undefined) poll.showCreatorName = showCreatorName;
+    if (enableToast !== undefined) poll.enableToast = enableToast;
+    if (slug !== undefined) poll.slug = slug || undefined;
+    if (expiresAt !== undefined) poll.expiresAt = new Date(expiresAt);
+    if (questions !== undefined) {
+      poll.questions = questions.map(
+        (q: { text: string; options: { text: string }[]; isMandatory?: boolean }, i: number) => ({
+          text: q.text,
+          options: q.options.map((o: { text: string }) => ({ text: o.text })),
+          isMandatory: q.isMandatory ?? true,
+          order: i,
+        }),
+      );
+    }
+
+    await poll.save();
+    sendSuccess(res, { poll }, "Poll updated");
   } catch (error) {
     next(error);
   }
