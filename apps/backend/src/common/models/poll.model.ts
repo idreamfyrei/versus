@@ -28,6 +28,7 @@ export interface IPoll extends Document {
   status: "draft" | "active" | "expired" | "closed";
   expiresAt: Date;
   views: number;
+  viewerHashes: string[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -81,6 +82,7 @@ const PollSchema = new Schema<IPoll>(
     },
     expiresAt: { type: Date, required: true },
     views: { type: Number, default: 0 },
+    viewerHashes: { type: [String], default: [], select: false },
   },
   { timestamps: true },
 );

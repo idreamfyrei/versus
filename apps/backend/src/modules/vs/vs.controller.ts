@@ -13,6 +13,9 @@ import { getIO } from "../socket/index.js";
 const hashAdminKey = (key: string) =>
   createHash("sha256").update(key).digest("hex");
 
+const hashIp = (ip: string) =>
+  createHash("sha256").update(ip).digest("hex");
+
 const findPollBySlugOrId = async (slugOrId: string): Promise<IPoll | null> => {
   const poll = await Poll.findOne({ slug: slugOrId });
   if (poll) return poll;
@@ -219,7 +222,12 @@ export const getPoll = async (
       return;
     }
 
-    await Poll.updateOne({ _id: poll._id }, { $inc: { views: 1 } });
+    const ipHash = hashIp(req.ip ?? req.socket.remoteAddress ?? "unknown");
+    const viewResult = await Poll.updateOne(
+      { _id: poll._id, viewerHashes: { $ne: ipHash } },
+      { $inc: { views: 1 }, $addToSet: { viewerHashes: ipHash } },
+    );
+    // viewResult.modifiedCount === 0 means this IP already viewed — no increment
 
     let hasResponded = false;
     if (req.user) {
