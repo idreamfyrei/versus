@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { api } from "@/lib/api";
-import { Plus, Copy, Check, BarChart3, ExternalLink, Trash2 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { Plus, Copy, Check, BarChart3, ExternalLink, Trash2, Inbox } from "lucide-react";
 import { toast } from "sonner";
 import type { PollListItem, PollStatus } from "@versus/shared";
 
 const STATUS_CONFIG: Record<PollStatus, { label: string; className: string }> = {
-  draft: { label: "Draft", className: "bg-gray-100 text-gray-600" },
+  draft: { label: "Draft", className: "bg-secondary text-muted-foreground" },
   active: { label: "Active", className: "bg-emerald-50 text-emerald-700" },
   expired: { label: "Expired", className: "bg-amber-50 text-amber-700" },
   closed: { label: "Closed", className: "bg-red-50 text-red-700" },
@@ -45,7 +46,7 @@ function ShareLink({ shareId, slug }: { shareId: string; slug?: string }) {
   return (
     <button
       onClick={(e) => { e.preventDefault(); copy(); }}
-      className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-primary transition-colors"
+      className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors"
     >
       {copied ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
       {copied ? "Copied" : "Copy link"}
@@ -58,17 +59,17 @@ function PollCard({ poll, onDelete }: { poll: PollListItem; onDelete: (id: strin
   const slug = poll.slug || poll.shareId;
 
   return (
-    <div className="bg-white rounded-2xl border border-border p-6 hover:shadow-md transition-all hover:-translate-y-0.5 animate-fade-slide-in flex flex-col">
+    <div className="bg-card rounded-2xl border border-border p-6 hover:shadow-[0_8px_24px_-8px_rgba(0,0,0,0.1)] transition-all duration-200 hover:-translate-y-0.5 animate-fade-slide-in flex flex-col">
       <div className="flex items-start justify-between gap-3 mb-3">
-        <h3 className="font-bold text-gray-900 text-lg leading-tight line-clamp-2">{poll.title}</h3>
+        <h3 className="font-bold text-lg leading-tight line-clamp-2">{poll.title}</h3>
         <span className={`shrink-0 px-2.5 py-0.5 text-xs font-semibold rounded-full ${status.className}`}>
           {status.label}
         </span>
       </div>
 
-      <div className="flex items-center gap-3 text-sm text-gray-500 mb-4">
+      <div className="flex items-center gap-3 text-sm text-muted-foreground mb-4">
         <span>{poll.responseCount} response{poll.responseCount !== 1 ? "s" : ""}</span>
-        <span className="w-1 h-1 rounded-full bg-gray-300" />
+        <span className="w-1 h-1 rounded-full bg-border" />
         {poll.status === "active" ? (
           <span className="text-emerald-600 font-medium">{timeLeft(poll.expiresAt)}</span>
         ) : (
@@ -88,14 +89,14 @@ function PollCard({ poll, onDelete }: { poll: PollListItem; onDelete: (id: strin
           <>
             <Link
               to={`/vs/${slug}`}
-              className="flex items-center gap-1 text-xs text-gray-500 hover:text-primary transition-colors"
+              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors"
             >
               <ExternalLink size={14} />
               View
             </Link>
             <Link
               to={`/vs/${poll._id}/analytics`}
-              className="flex items-center gap-1 text-xs text-gray-500 hover:text-primary transition-colors"
+              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors"
             >
               <BarChart3 size={14} />
               Analytics
@@ -105,7 +106,7 @@ function PollCard({ poll, onDelete }: { poll: PollListItem; onDelete: (id: strin
         <ShareLink shareId={poll.shareId} slug={poll.slug} />
         <button
           onClick={(e) => { e.preventDefault(); onDelete(poll._id); }}
-          className="ml-auto flex items-center gap-1 text-xs text-gray-400 hover:text-danger transition-colors"
+          className="ml-auto flex items-center gap-1 text-xs text-muted-foreground hover:text-danger transition-colors"
         >
           <Trash2 size={14} />
         </button>
@@ -116,7 +117,7 @@ function PollCard({ poll, onDelete }: { poll: PollListItem; onDelete: (id: strin
 
 function SkeletonCard() {
   return (
-    <div className="bg-white rounded-2xl border border-border p-6">
+    <div className="bg-card rounded-2xl border border-border p-6">
       <div className="h-5 w-3/4 animate-shimmer rounded mb-3" />
       <div className="h-4 w-1/2 animate-shimmer rounded mb-4" />
       <div className="h-8 w-full animate-shimmer rounded" />
@@ -125,6 +126,7 @@ function SkeletonCard() {
 }
 
 export function Dashboard() {
+  const { user } = useAuth();
   const [polls, setPolls] = useState<PollListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<PollStatus | "all">("all");
@@ -147,34 +149,37 @@ export function Dashboard() {
   const filtered = filter === "all" ? polls : polls.filter((p) => p.status === filter);
   const activeCount = polls.filter((p) => p.status === "active").length;
   const totalResponses = polls.reduce((sum, p) => sum + p.responseCount, 0);
+  const firstName = user?.name?.split(" ")[0] || "there";
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+    <div className="mx-auto max-w-6xl px-4 sm:px-8 py-10 animate-fade-slide-in">
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">
         <div>
-          <h1 className="text-3xl font-black text-gray-900">Your Polls</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            {activeCount} active poll{activeCount !== 1 ? "s" : ""} · {totalResponses} total response{totalResponses !== 1 ? "s" : ""}
+          <h1 className="text-3xl font-black tracking-tight">Hey, {firstName}</h1>
+          <p className="text-muted-foreground mt-1">
+            {polls.length === 0
+              ? "You haven't created any polls yet. Let's change that."
+              : `${activeCount} active poll${activeCount !== 1 ? "s" : ""} collecting ${totalResponses} total response${totalResponses !== 1 ? "s" : ""}.`}
           </p>
         </div>
         <Link
           to="/vs/new"
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-white font-semibold hover:bg-primary-dark transition-all hover:scale-[1.02] active:scale-[0.98]"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-foreground text-background font-bold text-sm tracking-wide hover:opacity-90 transition-all hover:scale-[1.02] active:scale-[0.98]"
         >
-          <Plus size={18} />
-          Create Poll
+          <Plus size={16} />
+          New Poll
         </Link>
       </div>
 
-      <div className="flex gap-2 mb-6 overflow-x-auto pb-1">
+      <div className="flex gap-2 mb-8 overflow-x-auto pb-1">
         {FILTERS.map((f) => (
           <button
             key={f.value}
             onClick={() => setFilter(f.value)}
             className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all whitespace-nowrap ${
               filter === f.value
-                ? "bg-primary text-white"
-                : "bg-surface-dark text-gray-600 hover:bg-gray-200"
+                ? "bg-foreground text-background"
+                : "bg-secondary text-muted-foreground hover:bg-border"
             }`}
           >
             {f.label}
@@ -187,16 +192,24 @@ export function Dashboard() {
           {Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)}
         </div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-20">
-          <p className="text-gray-400 text-lg mb-4">
-            {filter === "all" ? "No polls yet. Create your first one!" : `No ${filter} polls.`}
+        <div className="text-center py-24 animate-fade-slide-in">
+          <div className="mx-auto w-16 h-16 rounded-2xl bg-secondary flex items-center justify-center mb-5">
+            <Inbox size={28} className="text-muted-foreground" />
+          </div>
+          <h2 className="text-xl font-bold mb-2">
+            {filter === "all" ? "No polls yet" : `No ${filter} polls`}
+          </h2>
+          <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
+            {filter === "all"
+              ? "Create your first poll and share it with your team, friends, or the internet."
+              : "Try a different filter or create a new poll."}
           </p>
           {filter === "all" && (
             <Link
               to="/vs/new"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-white font-semibold hover:bg-primary-dark transition-all"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-foreground text-background font-bold text-sm hover:opacity-90 transition-all"
             >
-              <Plus size={18} />
+              <Plus size={16} />
               Create Your First Poll
             </Link>
           )}

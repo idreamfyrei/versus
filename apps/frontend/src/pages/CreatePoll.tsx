@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 import { useAuth } from "@/hooks/useAuth";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
-import { Plus, Trash2, ArrowLeft, ArrowRight, Rocket, Copy, Check, AlertTriangle } from "lucide-react";
+import { Plus, Trash2, ArrowLeft, ArrowRight, Rocket, Copy, Check, AlertTriangle, Sparkles } from "lucide-react";
 import type { Poll, CreatePollInput, CreatePollResponse } from "@versus/shared";
 
 interface QuestionDraft {
@@ -153,20 +153,28 @@ export function CreatePoll() {
 
   if (step === 2 && savedPoll) {
     return (
-      <div className="mx-auto max-w-2xl px-4 py-8 animate-fade-slide-in">
-        <button onClick={() => setStep(1)} className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 mb-6 transition-colors">
+      <div className="mx-auto max-w-2xl px-4 sm:px-8 py-10 animate-fade-slide-in">
+        <button onClick={() => setStep(1)} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-8 transition-colors">
           <ArrowLeft size={16} /> Back to edit
         </button>
 
-        <h1 className="text-3xl font-black text-gray-900 mb-2">Review Your Poll</h1>
-        <p className="text-gray-500 mb-8">Preview how respondents will see your poll before going live.</p>
+        <div className="mb-8">
+          <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 mb-3">
+            <Sparkles size={12} />
+            Almost there
+          </div>
+          <h1 className="text-3xl font-black tracking-tight">Review your poll</h1>
+          <p className="text-muted-foreground mt-1">
+            This is how respondents will see it. Make sure everything looks right before going live.
+          </p>
+        </div>
 
         {adminKey && (
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
+          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 mb-6">
             <div className="flex items-start gap-3">
               <AlertTriangle size={20} className="text-amber-600 shrink-0 mt-0.5" />
               <div>
-                <p className="font-semibold text-amber-800">Save your admin key!</p>
+                <p className="font-bold text-amber-800">Save your admin key</p>
                 <p className="text-sm text-amber-700 mt-1">You're not signed in. This key is the only way to manage your poll later.</p>
                 <div className="mt-3 flex items-center gap-2">
                   <code className="bg-white px-3 py-1.5 rounded-lg text-sm font-mono border border-amber-200 select-all">
@@ -182,26 +190,26 @@ export function CreatePoll() {
         )}
 
         {!isAuthenticated && !adminKey && (
-          <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 mb-6 text-sm text-primary-dark">
+          <div className="bg-primary/5 border border-primary/15 rounded-2xl p-4 mb-6 text-sm text-primary-dark">
             Sign in to unlock full analytics and manage your poll from the dashboard.
           </div>
         )}
 
-        <div className="bg-white rounded-2xl border border-border p-6 mb-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-1">{savedPoll.title}</h2>
-          {savedPoll.description && <p className="text-gray-500 text-sm mb-4">{savedPoll.description}</p>}
+        <div className="bg-card rounded-2xl border border-border p-6 mb-6 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)]">
+          <h2 className="text-xl font-bold mb-1">{savedPoll.title}</h2>
+          {savedPoll.description && <p className="text-muted-foreground text-sm mb-4">{savedPoll.description}</p>}
 
           {savedPoll.questions.map((q, qi) => (
             <div key={q._id} className="mb-6 last:mb-0">
-              <p className="font-semibold text-gray-800 mb-3">
+              <p className="font-semibold mb-3">
                 {qi + 1}. {q.text}
                 {q.isMandatory && <span className="text-danger ml-1">*</span>}
               </p>
               <div className="space-y-2">
                 {q.options.map((opt) => (
-                  <label key={opt._id} className="flex items-center gap-3 p-3 rounded-xl border border-border hover:bg-surface-dark transition-colors cursor-pointer">
-                    <div className="w-4 h-4 rounded-full border-2 border-gray-300" />
-                    <span className="text-sm text-gray-700">{opt.text}</span>
+                  <label key={opt._id} className="flex items-center gap-3 p-3 rounded-xl border border-border hover:bg-secondary transition-colors cursor-pointer">
+                    <div className="w-4 h-4 rounded-full border-2 border-border" />
+                    <span className="text-sm">{opt.text}</span>
                   </label>
                 ))}
               </div>
@@ -209,22 +217,22 @@ export function CreatePoll() {
           ))}
         </div>
 
-        <div className="bg-surface rounded-xl p-4 mb-6 text-sm text-gray-600 space-y-1">
-          <p><span className="font-medium">Responses:</span> {savedPoll.isAnonymous ? "Anonymous" : "Authenticated"}</p>
-          <p><span className="font-medium">Expires:</span> {new Date(savedPoll.expiresAt).toLocaleString()}</p>
-          {savedPoll.slug && <p><span className="font-medium">Custom slug:</span> /vs/{savedPoll.slug}</p>}
-          {savedPoll.enableToast && <p><span className="font-medium">Vote toasts:</span> Enabled</p>}
-          <p><span className="font-medium">Share link:</span> {shareUrl}</p>
+        <div className="bg-secondary rounded-2xl p-5 mb-6 text-sm text-muted-foreground space-y-1.5">
+          <p><span className="font-semibold text-foreground">Responses:</span> {savedPoll.isAnonymous ? "Anonymous (no login needed)" : "Authenticated (sign-in required)"}</p>
+          <p><span className="font-semibold text-foreground">Expires:</span> {new Date(savedPoll.expiresAt).toLocaleString()}</p>
+          {savedPoll.slug && <p><span className="font-semibold text-foreground">Custom slug:</span> /vs/{savedPoll.slug}</p>}
+          {savedPoll.enableToast && <p><span className="font-semibold text-foreground">Vote toasts:</span> Enabled</p>}
+          <p><span className="font-semibold text-foreground">Share link:</span> {shareUrl}</p>
         </div>
 
         <div className="flex gap-3">
-          <button onClick={() => setStep(1)} className="px-5 py-3 rounded-xl border border-border font-semibold hover:bg-surface-dark transition-all">
+          <button onClick={() => setStep(1)} className="px-5 py-3 rounded-full border border-border font-semibold hover:bg-secondary transition-all">
             Edit
           </button>
           <button
             onClick={handleActivate}
             disabled={activating}
-            className="flex-1 flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-primary text-white font-semibold hover:bg-primary-dark transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-60"
+            className="flex-1 flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-foreground text-background font-bold hover:opacity-90 transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-60"
           >
             <Rocket size={18} />
             {activating ? "Going live..." : "Go Public"}
@@ -235,40 +243,44 @@ export function CreatePoll() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8 animate-fade-slide-in">
-      <h1 className="text-3xl font-black text-gray-900 mb-2">Create a Poll</h1>
-      <p className="text-gray-500 mb-8">Set up your questions, pick your options, and share with the world.</p>
+    <div className="mx-auto max-w-2xl px-4 sm:px-8 py-10 animate-fade-slide-in">
+      <div className="mb-8">
+        <h1 className="text-3xl font-black tracking-tight">Create a poll</h1>
+        <p className="text-muted-foreground mt-1">
+          Set up your questions, pick your options, and share with anyone. It takes under a minute.
+        </p>
+      </div>
 
       <div className="space-y-6">
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1.5">Title *</label>
+          <label className="block text-sm font-semibold mb-1.5">Title *</label>
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="What's your poll about?"
-            className="w-full px-4 py-3 rounded-xl border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-sm"
+            placeholder="e.g. Friday lunch showdown"
+            className="w-full px-4 py-3 rounded-xl border border-border bg-card focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-sm"
           />
           {errors.title && <p className="text-danger text-xs mt-1">{errors.title}</p>}
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1.5">Description</label>
+          <label className="block text-sm font-semibold mb-1.5">Description</label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Optional context for your poll..."
+            placeholder="Give voters some context (optional)"
             rows={2}
-            className="w-full px-4 py-3 rounded-xl border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-sm resize-none"
+            className="w-full px-4 py-3 rounded-xl border border-border bg-card focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-sm resize-none"
           />
         </div>
 
         <div className="space-y-4">
-          <h2 className="text-lg font-bold text-gray-900">Questions</h2>
+          <h2 className="text-lg font-bold">Questions</h2>
           {errors.questions && <p className="text-danger text-xs">{errors.questions}</p>}
 
           {questions.map((q, qi) => (
-            <div key={qi} className="bg-surface rounded-2xl border border-border p-5">
+            <div key={qi} className="bg-card rounded-2xl border border-border p-5 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.04)]">
               <div className="flex items-start gap-3 mb-3">
                 <span className="shrink-0 w-7 h-7 rounded-lg bg-primary/10 text-primary text-sm font-bold flex items-center justify-center mt-0.5">
                   {qi + 1}
@@ -279,14 +291,14 @@ export function CreatePoll() {
                     value={q.text}
                     onChange={(e) => updateQuestion(qi, { text: e.target.value })}
                     placeholder="Your question..."
-                    className="w-full px-3 py-2 rounded-lg border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-sm bg-white"
+                    className="w-full px-3 py-2 rounded-lg border border-border bg-background focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-sm"
                   />
                   {errors[`q${qi}`] && <p className="text-danger text-xs mt-1">{errors[`q${qi}`]}</p>}
                 </div>
                 {questions.length > 1 && (
                   <button
                     onClick={() => setQuestions((prev) => prev.filter((_, i) => i !== qi))}
-                    className="p-1.5 text-gray-400 hover:text-danger transition-colors"
+                    className="p-1.5 text-muted-foreground hover:text-danger transition-colors"
                   >
                     <Trash2 size={16} />
                   </button>
@@ -296,16 +308,16 @@ export function CreatePoll() {
               <div className="ml-10 space-y-2">
                 {q.options.map((opt, oi) => (
                   <div key={oi} className="flex items-center gap-2">
-                    <div className="w-3.5 h-3.5 rounded-full border-2 border-gray-300 shrink-0" />
+                    <div className="w-3.5 h-3.5 rounded-full border-2 border-border shrink-0" />
                     <input
                       type="text"
                       value={opt.text}
                       onChange={(e) => updateOption(qi, oi, e.target.value)}
                       placeholder={`Option ${oi + 1}`}
-                      className="flex-1 px-3 py-2 rounded-lg border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-sm bg-white"
+                      className="flex-1 px-3 py-2 rounded-lg border border-border bg-background focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-sm"
                     />
                     {q.options.length > 2 && (
-                      <button onClick={() => removeOption(qi, oi)} className="p-1 text-gray-400 hover:text-danger transition-colors">
+                      <button onClick={() => removeOption(qi, oi)} className="p-1 text-muted-foreground hover:text-danger transition-colors">
                         <Trash2 size={14} />
                       </button>
                     )}
@@ -315,14 +327,14 @@ export function CreatePoll() {
                 {errors[`q${qi}opts`] && <p className="text-danger text-xs mt-1">{errors[`q${qi}opts`]}</p>}
                 <button
                   onClick={() => addOption(qi)}
-                  className="text-xs text-primary font-medium hover:text-primary-dark transition-colors ml-5"
+                  className="text-xs text-primary font-semibold hover:text-primary-dark transition-colors ml-5"
                 >
                   + Add option
                 </button>
               </div>
 
               <div className="ml-10 mt-3">
-                <label className="flex items-center gap-2 text-xs text-gray-600 cursor-pointer">
+                <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer">
                   <input
                     type="checkbox"
                     checked={q.isMandatory}
@@ -337,7 +349,7 @@ export function CreatePoll() {
 
           <button
             onClick={() => setQuestions((prev) => [...prev, defaultQuestion()])}
-            className="flex items-center gap-2 text-sm font-medium text-primary hover:text-primary-dark transition-colors"
+            className="flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary-dark transition-colors"
           >
             <Plus size={16} />
             Add question
@@ -345,13 +357,14 @@ export function CreatePoll() {
         </div>
 
         <div className="border-t border-border pt-6 space-y-4">
-          <h2 className="text-lg font-bold text-gray-900">Settings</h2>
+          <h2 className="text-lg font-bold">Settings</h2>
+          <p className="text-sm text-muted-foreground -mt-2">Configure how your poll behaves.</p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <label className="flex items-center justify-between p-4 rounded-xl border border-border bg-white cursor-pointer hover:bg-surface-dark transition-colors">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <label className="flex items-center justify-between p-4 rounded-2xl border border-border bg-card cursor-pointer hover:bg-secondary transition-colors">
               <div>
-                <p className="text-sm font-medium text-gray-800">Anonymous responses</p>
-                <p className="text-xs text-gray-500">No login required to vote</p>
+                <p className="text-sm font-semibold">Anonymous responses</p>
+                <p className="text-xs text-muted-foreground">No login required to vote</p>
               </div>
               <input
                 type="checkbox"
@@ -362,10 +375,10 @@ export function CreatePoll() {
             </label>
 
             {isAuthenticated && (
-              <label className="flex items-center justify-between p-4 rounded-xl border border-border bg-white cursor-pointer hover:bg-surface-dark transition-colors">
+              <label className="flex items-center justify-between p-4 rounded-2xl border border-border bg-card cursor-pointer hover:bg-secondary transition-colors">
                 <div>
-                  <p className="text-sm font-medium text-gray-800">Show your name</p>
-                  <p className="text-xs text-gray-500">Display creator name on poll</p>
+                  <p className="text-sm font-semibold">Show your name</p>
+                  <p className="text-xs text-muted-foreground">Display creator name on poll</p>
                 </div>
                 <input
                   type="checkbox"
@@ -376,10 +389,10 @@ export function CreatePoll() {
               </label>
             )}
 
-            <label className="flex items-center justify-between p-4 rounded-xl border border-border bg-white cursor-pointer hover:bg-surface-dark transition-colors">
+            <label className="flex items-center justify-between p-4 rounded-2xl border border-border bg-card cursor-pointer hover:bg-secondary transition-colors">
               <div>
-                <p className="text-sm font-medium text-gray-800">Vote toasts</p>
-                <p className="text-xs text-gray-500">"Someone just voted!" alerts</p>
+                <p className="text-sm font-semibold">Vote toasts</p>
+                <p className="text-xs text-muted-foreground">"Someone just voted!" alerts</p>
               </div>
               <input
                 type="checkbox"
@@ -391,27 +404,27 @@ export function CreatePoll() {
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Custom URL slug</label>
+            <label className="block text-sm font-semibold mb-1.5">Custom URL slug</label>
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-400">/vs/</span>
+              <span className="text-sm text-muted-foreground">/vs/</span>
               <input
                 type="text"
                 value={slug}
                 onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
                 placeholder="my-cool-poll"
-                className="flex-1 px-3 py-2 rounded-lg border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-sm"
+                className="flex-1 px-3 py-2 rounded-lg border border-border bg-card focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-sm"
               />
             </div>
             {errors.slug && <p className="text-danger text-xs mt-1">{errors.slug}</p>}
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Expires at *</label>
+            <label className="block text-sm font-semibold mb-1.5">Expires at *</label>
             <input
               type="datetime-local"
               value={expiresAt}
               onChange={(e) => setExpiresAt(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-sm"
+              className="w-full px-4 py-3 rounded-xl border border-border bg-card focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-sm"
             />
             {errors.expiresAt && <p className="text-danger text-xs mt-1">{errors.expiresAt}</p>}
           </div>
@@ -420,7 +433,7 @@ export function CreatePoll() {
         <button
           onClick={handleSaveDraft}
           disabled={saving}
-          className="w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-primary text-white font-semibold hover:bg-primary-dark transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-60"
+          className="w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-full bg-foreground text-background font-bold hover:opacity-90 transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-60"
         >
           {saving ? "Saving..." : <>Review <ArrowRight size={18} /></>}
         </button>

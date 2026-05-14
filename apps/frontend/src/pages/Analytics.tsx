@@ -11,11 +11,11 @@ import { Copy, X, Share2, Eye, Users, TrendingUp, Clock, Smartphone, Monitor, Ta
 import type { Poll, AnalyticsData, SocketResponsePayload, SocketStatusPayload } from "@versus/shared";
 
 const CHART_COLORS = [
-  "oklch(0.5 0.24 264)",
-  "oklch(0.6 0.2 264)",
-  "oklch(0.7 0.15 264)",
-  "oklch(0.8 0.1 264)",
-  "oklch(0.85 0.06 264)",
+  "oklch(0.5 0.18 264)",
+  "oklch(0.6 0.15 264)",
+  "oklch(0.7 0.12 264)",
+  "oklch(0.8 0.08 264)",
+  "oklch(0.85 0.05 264)",
   "oklch(0.9 0.03 264)",
 ];
 const DEVICE_ICONS: Record<string, typeof Smartphone> = { mobile: Smartphone, desktop: Monitor, tablet: Tablet };
@@ -205,9 +205,11 @@ export function Analytics() {
                 {status.label}
               </span>
             </div>
-            {poll.status === "active" && (
-              <p className="text-sm text-muted-foreground">Expires {new Date(poll.expiresAt).toLocaleString()}</p>
-            )}
+            <p className="text-sm text-muted-foreground">
+              {poll.status === "active"
+                ? `Live analytics — expires ${new Date(poll.expiresAt).toLocaleString()}`
+                : "Your poll performance at a glance."}
+            </p>
           </div>
           <div className="flex gap-2">
             <button onClick={copyLink} className="flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-card text-sm font-semibold shadow-[0_2px_10px_-4px_rgba(0,0,0,0.1)] hover:shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] transition-all">

@@ -306,7 +306,7 @@ export function Landing() {
                 to="/login"
                 className="rounded-full border border-border bg-card px-7 py-3.5 text-sm font-bold tracking-wide transition-all duration-200 hover:scale-[1.04] active:scale-[0.96] hover:shadow-md"
               >
-                SIGN UP
+                LOG IN
               </Link>
             )}
           </div>
@@ -384,21 +384,11 @@ export function Landing() {
               <PollBar label="Taco Truck" value={31} delay={650} color="oklch(0.5 0.18 264 / 0.15)" />
               <PollBar label="Just Coffee" value={17} delay={800} color="oklch(0.5 0.18 264 / 0.1)" />
             </div>
-            <div className="mt-5 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse-dot" />
-                <p className="text-xs font-semibold text-muted-foreground">
-                  <span className="text-foreground">248</span> votes · Updates live
-                </p>
-              </div>
-              <div className="flex -space-x-1.5">
-                {["bg-primary/60", "bg-emerald-400", "bg-amber-400", "bg-rose-400"].map((c, i) => (
-                  <div key={i} className={`w-5 h-5 rounded-full ${c} border-2 border-background`} />
-                ))}
-                <div className="w-5 h-5 rounded-full bg-secondary border-2 border-background text-[8px] font-bold text-muted-foreground flex items-center justify-center">
-                  +5
-                </div>
-              </div>
+            <div className="mt-5 flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse-dot" />
+              <p className="text-xs font-semibold text-muted-foreground">
+                <span className="text-foreground">248</span> votes · Updates live
+              </p>
             </div>
           </div>
         </div>

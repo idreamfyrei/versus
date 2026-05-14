@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Geist Sans", "Inter", system-ui, -apple-system, sans-serif;
+  --font-sans: "Geist Sans", system-ui, -apple-system, sans-serif;
 
   /* Core palette */
   --color-background: oklch(0.96 0.002 247);
