@@ -16,7 +16,7 @@
     "jsx": "react-jsx",
 
     /* Paths */
-    "paths": { "*": ["./*"] },
+    "paths": { "@/*": ["./src/*"] },
 
     /* Linting */
     "noUnusedLocals": true,
