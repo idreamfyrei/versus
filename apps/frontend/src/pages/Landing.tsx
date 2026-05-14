@@ -37,10 +37,10 @@ function WaveBg() {
   );
 }
 
-/* ── Tilt card ── */
+/* ── Parallax tilt card ── */
 
 interface CardProps {
-  variant: "light" | "blue" | "pink" | "blue-alt";
+  variant: "light" | "soft-blue" | "soft-pink" | "soft-indigo";
   badge?: string;
   metric: string;
   metricSuffix?: string;
@@ -53,41 +53,42 @@ interface CardProps {
 const cardStyles = {
   light: {
     bg: "bg-card",
-    text: "text-card-foreground",
-    sub: "text-muted-foreground",
-    label: "bg-foreground/5 text-foreground/70",
-    icon: "border-foreground/20 text-foreground",
-    pulse: "oklch(0.12 0.01 250 / 0.15)",
-  },
-  blue: {
-    bg: "bg-vs-blue",
-    text: "text-white",
-    sub: "text-white/70",
-    label: "bg-white/15 text-white/85",
-    icon: "border-white/40 text-white",
-    pulse: "oklch(1 0 0 / 0.25)",
-  },
-  pink: {
-    bg: "bg-vs-pink",
     text: "text-foreground",
-    sub: "text-foreground/60",
-    label: "bg-foreground/10 text-foreground/70",
-    icon: "border-foreground/25 text-foreground",
-    pulse: "oklch(0.12 0.01 250 / 0.12)",
+    sub: "text-muted-foreground",
+    label: "bg-foreground/5 text-foreground/60",
+    icon: "border-foreground/15 text-foreground/70",
+    glow: "oklch(0.12 0.01 250 / 0.08)",
   },
-  "blue-alt": {
-    bg: "bg-vs-blue",
-    text: "text-white",
-    sub: "text-white/70",
-    label: "bg-white/15 text-white/85",
-    icon: "border-white/40 text-white",
-    pulse: "oklch(1 0 0 / 0.25)",
+  "soft-blue": {
+    bg: "bg-[oklch(0.95_0.03_250)]",
+    text: "text-foreground",
+    sub: "text-muted-foreground",
+    label: "bg-[oklch(0.5_0.15_264_/_0.1)] text-[oklch(0.4_0.15_264)]",
+    icon: "border-[oklch(0.5_0.15_264_/_0.25)] text-[oklch(0.45_0.15_264)]",
+    glow: "oklch(0.5 0.15 264 / 0.15)",
+  },
+  "soft-pink": {
+    bg: "bg-[oklch(0.96_0.02_340)]",
+    text: "text-foreground",
+    sub: "text-muted-foreground",
+    label: "bg-[oklch(0.7_0.08_340_/_0.15)] text-[oklch(0.45_0.08_340)]",
+    icon: "border-[oklch(0.7_0.08_340_/_0.3)] text-[oklch(0.5_0.08_340)]",
+    glow: "oklch(0.7 0.08 340 / 0.12)",
+  },
+  "soft-indigo": {
+    bg: "bg-[oklch(0.94_0.04_280)]",
+    text: "text-foreground",
+    sub: "text-muted-foreground",
+    label: "bg-[oklch(0.5_0.12_280_/_0.1)] text-[oklch(0.4_0.12_280)]",
+    icon: "border-[oklch(0.5_0.12_280_/_0.25)] text-[oklch(0.45_0.12_280)]",
+    glow: "oklch(0.5 0.12 280 / 0.12)",
   },
 };
 
 function BentoCard({ variant, badge, metric, metricSuffix, subtitle, desc, icon, delay }: CardProps) {
   const s = cardStyles[variant];
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const [hovering, setHovering] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   const onMove = (e: React.MouseEvent) => {
@@ -95,39 +96,53 @@ function BentoCard({ variant, badge, metric, metricSuffix, subtitle, desc, icon,
     const r = ref.current.getBoundingClientRect();
     const nx = (e.clientX - r.left) / r.width - 0.5;
     const ny = (e.clientY - r.top) / r.height - 0.5;
-    setTilt({ x: ny * 12, y: nx * -12 });
+    setTilt({ x: ny * 15, y: nx * -15 });
   };
 
   return (
     <div
       ref={ref}
       onMouseMove={onMove}
-      onMouseLeave={() => setTilt({ x: 0, y: 0 })}
-      className={`group relative flex h-[380px] flex-col rounded-3xl p-7 ${s.bg} ${s.text} shadow-[0_20px_60px_-20px_rgba(0,0,0,0.2)] cursor-pointer overflow-hidden animate-slide-up`}
+      onMouseEnter={() => setHovering(true)}
+      onMouseLeave={() => { setTilt({ x: 0, y: 0 }); setHovering(false); }}
+      className={`group relative flex h-[380px] flex-col rounded-3xl p-7 ${s.bg} ${s.text} cursor-pointer overflow-hidden animate-slide-up`}
       style={{
         animationDelay: `${delay}ms`,
-        transform: `perspective(1000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
-        transition: "transform 0.15s ease-out",
+        transform: `perspective(800px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) ${hovering ? "scale(1.02)" : "scale(1)"}`,
+        transition: "transform 0.2s ease-out, box-shadow 0.3s ease",
+        boxShadow: hovering
+          ? "0 25px 50px -15px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.03)"
+          : "0 8px 30px -15px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.03)",
       }}
     >
       {badge && (
-        <span className="absolute right-5 top-5 rounded-full bg-foreground px-3 py-1 text-[10px] font-bold tracking-widest text-white z-10"
-          style={{ transform: "translateZ(40px)" }}
+        <span
+          className="absolute right-5 top-5 rounded-full bg-foreground px-3 py-1 text-[10px] font-bold tracking-widest text-background z-10"
+          style={{ transform: `translateZ(${hovering ? 60 : 0}px)` }}
         >
           {badge}
         </span>
       )}
 
-      <div className="flex flex-1 items-center justify-center" style={{ transform: "translateZ(50px)" }}>
+      <div
+        className="flex flex-1 items-center justify-center"
+        style={{ transform: `translateZ(${hovering ? 50 : 0}px)`, transition: "transform 0.2s ease-out" }}
+      >
         <div
-          className={`flex h-24 w-24 items-center justify-center rounded-full border-2 border-dashed ${s.icon} bg-white/10 transition-all duration-500 group-hover:rotate-[8deg] group-hover:scale-110 group-hover:shadow-[0_0_30px_var(--pulse-color)]`}
-          style={{ "--pulse-color": s.pulse } as React.CSSProperties}
+          className={`flex h-24 w-24 items-center justify-center rounded-full border-2 border-dashed ${s.icon} transition-all duration-500 group-hover:rotate-[8deg] group-hover:scale-110`}
+          style={{
+            boxShadow: hovering ? `0 0 40px ${s.glow}` : "none",
+            transition: "box-shadow 0.4s ease, transform 0.5s ease",
+          }}
         >
           {icon}
         </div>
       </div>
 
-      <div style={{ transform: "translateZ(30px)" }} className="space-y-2">
+      <div
+        style={{ transform: `translateZ(${hovering ? 30 : 0}px)`, transition: "transform 0.2s ease-out" }}
+        className="space-y-2"
+      >
         <div className="text-3xl font-black tracking-tight">
           {metric}
           {metricSuffix && <span className="ml-1">{metricSuffix}</span>}
@@ -191,7 +206,7 @@ function PollBar({ label, value, delay, color }: { label: string; value: number;
         } as React.CSSProperties}
       />
       <span className="relative z-10 px-5 text-sm font-semibold">{label}</span>
-      <span className="relative z-10 ml-auto px-5 text-sm font-bold text-vs-blue">{count}%</span>
+      <span className="relative z-10 ml-auto px-5 text-sm font-bold text-primary">{count}%</span>
     </div>
   );
 }
@@ -203,7 +218,7 @@ function StepCard({ n, icon, title, desc, color, delay }: {
 }) {
   return (
     <div
-      className="group relative overflow-hidden rounded-3xl bg-card p-8 shadow-[0_10px_40px_-20px_rgba(0,0,0,0.12)] cursor-pointer transition-all duration-300 hover:shadow-[0_20px_60px_-20px_rgba(0,0,0,0.2)] hover:-translate-y-2 animate-slide-up"
+      className="group relative overflow-hidden rounded-3xl bg-card p-8 shadow-[0_4px_24px_-8px_rgba(0,0,0,0.08)] cursor-pointer transition-all duration-300 hover:shadow-[0_20px_60px_-20px_rgba(0,0,0,0.15)] hover:-translate-y-2 animate-slide-up"
       style={{ animationDelay: `${delay}ms` }}
     >
       <span className="absolute right-6 top-6 text-5xl font-black text-foreground/5 transition-colors group-hover:text-foreground/10">
@@ -225,10 +240,10 @@ function FeatureItem({ icon, title, desc, delay }: {
 }) {
   return (
     <div
-      className="group flex gap-4 rounded-2xl bg-card p-5 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.08)] cursor-pointer transition-all duration-300 hover:shadow-[0_10px_30px_-10px_rgba(0,0,0,0.12)] hover:-translate-y-1 animate-slide-up"
+      className="group flex gap-4 rounded-2xl bg-card p-5 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] cursor-pointer transition-all duration-300 hover:shadow-[0_8px_24px_-8px_rgba(0,0,0,0.1)] hover:-translate-y-1 animate-slide-up"
       style={{ animationDelay: `${delay}ms` }}
     >
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-secondary text-foreground/70 transition-colors duration-300 group-hover:bg-vs-blue group-hover:text-white">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-secondary text-foreground/70 transition-colors duration-300 group-hover:bg-primary group-hover:text-white">
         {icon}
       </div>
       <div>
@@ -250,9 +265,16 @@ export function Landing() {
       <section className="relative overflow-hidden">
         <WaveBg />
 
-        <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-8 pt-12 pb-20">
-          <h1 className="max-w-4xl text-5xl sm:text-6xl md:text-8xl font-black leading-[0.95] tracking-[-0.04em] animate-slide-up">
-            {"Decisions, delivered fast.".split(" ").map((word, i) => (
+        <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-8 pt-16 pb-20">
+          <p
+            className="inline-flex items-center gap-2 rounded-full bg-primary/8 px-4 py-1.5 text-xs font-semibold tracking-wide text-primary animate-fade-slide-in"
+          >
+            <Zap size={12} />
+            Polls that actually get answered
+          </p>
+
+          <h1 className="mt-6 max-w-4xl text-5xl sm:text-6xl md:text-[5.5rem] font-black leading-[0.92] tracking-[-0.04em]">
+            {"Ask once. Know instantly.".split(" ").map((word, i) => (
               <span
                 key={i}
                 className="mr-4 inline-block animate-slide-up"
@@ -264,10 +286,11 @@ export function Landing() {
           </h1>
 
           <p
-            className="mt-6 max-w-md text-base font-semibold leading-relaxed text-foreground animate-slide-up"
+            className="mt-6 max-w-lg text-lg font-medium leading-relaxed text-muted-foreground animate-slide-up"
             style={{ animationDelay: "600ms" }}
           >
-            Create polls, share a link, get answers. Versus turns messy group decisions into clean, real-time results.
+            Create a poll in seconds, drop a link anywhere, and watch
+            your group align in real time. No apps, no accounts, no chaos.
           </p>
 
           <div className="mt-8 flex gap-3 animate-slide-up" style={{ animationDelay: "700ms" }}>
@@ -294,7 +317,7 @@ export function Landing() {
               variant="light"
               metric="0.5s"
               subtitle="Flash Setup"
-              desc="Create custom questions in under a minute."
+              desc="Build custom polls in under a minute. No friction, just questions."
               icon={
                 <div className="text-center text-[10px] font-bold leading-tight">
                   <Plus className="mx-auto h-4 w-4" />
@@ -304,29 +327,29 @@ export function Landing() {
               delay={0}
             />
             <BentoCard
-              variant="blue"
+              variant="soft-blue"
               badge="POPULAR"
               metric="∞"
               metricSuffix="Share"
               subtitle="Public Links"
-              desc="One link for Slack, WhatsApp, or the world."
+              desc="One link for Slack, WhatsApp, or the world. Just drop and go."
               icon={<Share2 className="h-7 w-7" />}
               delay={100}
             />
             <BentoCard
-              variant="pink"
+              variant="soft-pink"
               metric="Live"
               subtitle="Real-Time Pulse"
-              desc="Watch the bars move as the votes roll in."
+              desc="Watch the bars move as the votes roll in. Instant feedback."
               icon={<BarChart3 className="h-7 w-7" />}
               delay={200}
             />
             <BentoCard
-              variant="blue-alt"
+              variant="soft-indigo"
               metric="HD"
               metricSuffix="Data"
               subtitle="Detailed Analytics"
-              desc="Demographics, trends, and rich insights."
+              desc="Demographics, trends, and rich insights at your fingertips."
               icon={<FileText className="h-7 w-7" />}
               delay={300}
             />
@@ -336,40 +359,40 @@ export function Landing() {
 
       {/* ── Versus the group chat ── */}
       <section className="mx-auto max-w-6xl px-4 sm:px-8 pb-24">
-        <div className="grid grid-cols-1 gap-10 rounded-[2.5rem] bg-card p-8 sm:p-10 md:grid-cols-2 md:p-16 animate-slide-up" style={{ animationDelay: "200ms" }}>
+        <div className="grid grid-cols-1 gap-10 rounded-[2.5rem] bg-card p-8 sm:p-10 md:grid-cols-2 md:p-16 shadow-[0_4px_24px_-8px_rgba(0,0,0,0.06)] animate-slide-up" style={{ animationDelay: "200ms" }}>
           <div>
             <h2 className="text-5xl font-black leading-[1] tracking-[-0.04em] md:text-6xl">
               Versus the<br />group chat.
             </h2>
-            <p className="mt-6 max-w-md font-medium leading-relaxed text-foreground/85">
+            <p className="mt-6 max-w-md font-medium leading-relaxed text-muted-foreground">
               No more "where should we eat?" threads with 47 replies and zero consensus. One poll. One link. Done.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <span className="rounded-full bg-vs-blue px-5 py-2.5 text-xs font-bold tracking-widest text-white">
+              <span className="rounded-full bg-primary/10 px-5 py-2.5 text-xs font-bold tracking-widest text-primary">
                 INSTANT RESULTS
               </span>
-              <span className="rounded-full bg-vs-pink px-5 py-2.5 text-xs font-bold tracking-widest text-foreground">
+              <span className="rounded-full bg-[oklch(0.9_0.05_340)] px-5 py-2.5 text-xs font-bold tracking-widest text-foreground">
                 ANONYMOUS
               </span>
             </div>
           </div>
 
-          <div className="rounded-3xl bg-background p-8 shadow-sm animate-scale-in" style={{ animationDelay: "400ms" }}>
-            <h3 className="text-lg font-bold">Friday lunch showdown 🍕</h3>
+          <div className="rounded-3xl bg-background p-8 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] animate-scale-in" style={{ animationDelay: "400ms" }}>
+            <h3 className="text-lg font-bold">Friday lunch showdown</h3>
             <div className="mt-6 space-y-3">
-              <PollBar label="Sushi Place" value={52} delay={500} color="oklch(0.5 0.24 264 / 0.2)" />
-              <PollBar label="Taco Truck" value={31} delay={650} color="oklch(0.5 0.24 264 / 0.15)" />
-              <PollBar label="Just Coffee" value={17} delay={800} color="oklch(0.5 0.24 264 / 0.1)" />
+              <PollBar label="Sushi Place" value={52} delay={500} color="oklch(0.5 0.18 264 / 0.2)" />
+              <PollBar label="Taco Truck" value={31} delay={650} color="oklch(0.5 0.18 264 / 0.15)" />
+              <PollBar label="Just Coffee" value={17} delay={800} color="oklch(0.5 0.18 264 / 0.1)" />
             </div>
             <div className="mt-5 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse-dot" />
-                <p className="text-xs font-semibold text-foreground/60">
+                <p className="text-xs font-semibold text-muted-foreground">
                   <span className="text-foreground">248</span> votes · Updates live
                 </p>
               </div>
               <div className="flex -space-x-1.5">
-                {["bg-vs-blue", "bg-emerald-400", "bg-amber-400", "bg-rose-400"].map((c, i) => (
+                {["bg-primary/60", "bg-emerald-400", "bg-amber-400", "bg-rose-400"].map((c, i) => (
                   <div key={i} className={`w-5 h-5 rounded-full ${c} border-2 border-background`} />
                 ))}
                 <div className="w-5 h-5 rounded-full bg-secondary border-2 border-background text-[8px] font-bold text-muted-foreground flex items-center justify-center">
@@ -392,8 +415,8 @@ export function Landing() {
           <div className="mt-14 grid grid-cols-1 gap-5 md:grid-cols-3">
             <StepCard
               n="01"
-              icon={<Zap className="h-5 w-5 text-vs-blue" />}
-              color="bg-[oklch(0.5_0.24_264_/_0.12)]"
+              icon={<Zap className="h-5 w-5 text-primary" />}
+              color="bg-primary/10"
               title="Build your poll"
               desc="Add questions, set options, pick who can vote. Draft it, tweak it, make it yours."
               delay={100}
@@ -435,7 +458,7 @@ export function Landing() {
           <p className="mt-4 font-medium text-muted-foreground">Create your first poll in seconds. No account needed.</p>
           <Link
             to="/vs/new"
-            className="group mt-10 inline-flex items-center gap-3 rounded-full bg-vs-blue px-8 py-4 text-base font-bold text-white shadow-[0_15px_40px_-10px_oklch(0.5_0.24_264_/_0.4)] transition-all duration-200 hover:scale-[1.05] hover:-translate-y-0.5 active:scale-[0.97]"
+            className="group mt-10 inline-flex items-center gap-3 rounded-full bg-primary px-8 py-4 text-base font-bold text-white shadow-[0_15px_40px_-10px_oklch(0.5_0.18_264_/_0.3)] transition-all duration-200 hover:scale-[1.05] hover:-translate-y-0.5 active:scale-[0.97]"
           >
             Start Your First Versus
             <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />

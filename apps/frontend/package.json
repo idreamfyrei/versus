@@ -11,8 +11,10 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.0",
+    "@versus/shared": "workspace:*",
     "better-auth": "^1.6.10",
     "clsx": "^2.1.1",
+    "geist": "^1.7.0",
     "lucide-react": "^1.14.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
@@ -20,8 +22,7 @@
     "recharts": "^3.8.1",
     "socket.io-client": "^4.8.3",
     "sonner": "^2.0.7",
-    "tailwindcss": "^4.3.0",
-    "@versus/shared": "workspace:*"
+    "tailwindcss": "^4.3.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
