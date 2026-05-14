@@ -36,7 +36,6 @@ Versus is a full-stack survey/poll platform. No sign-up is required to create or
 - [Tech Stack](#-tech-stack)
 - [Project Structure](#-project-structure)
 - [Getting Started](#-getting-started)
-- [Environment Variables](#-environment-variables)
 - [Why I Built It This Way](#-why-I-built-it-this-way)
 - [Architecture & Design Decisions](#-architecture--design-decisions)
 - [Application Flow](#-application-flow)
@@ -85,7 +84,7 @@ versus/
 │   │       │   │   ├── poll.model.ts       # Poll + Question + Option schemas
 │   │       │   │   └── response.model.ts   # Response + Answer + device schemas
 │   │       │   └── utils/
-│   │       │       ├── fingerprint.ts      # IP + UA hash for anon dedup
+│   │       │       ├── fingerprint.ts      # IP + UA hash for anon
 │   │       │       └── response.ts         # sendSuccess / ApiError helpers
 │   │       ├── modules/
 │   │       │   ├── socket/index.ts         # Socket.io init + room management
@@ -161,11 +160,9 @@ cd apps/backend && pnpm dev     # Express on :8000
 cd apps/frontend && pnpm dev    # Vite on :5173 (proxies /api to :8000)
 ```
 
----
+### Environment Variables
 
-## Environment Variables
-
-### Backend (`apps/backend/.env`)
+#### Backend (`apps/backend/.env`)
 
 | Variable | Required | Description | Example |
 |----------|:--------:|-------------|---------|
@@ -180,13 +177,15 @@ cd apps/frontend && pnpm dev    # Vite on :5173 (proxies /api to :8000)
 | `GITHUB_CLIENT_ID` | Yes | GitHub OAuth app ID | From Developer Settings |
 | `GITHUB_CLIENT_SECRET` | Yes | GitHub OAuth app secret | From Developer Settings |
 
-> **Important:** `BETTER_AUTH_URL` must be the **base server URL** (e.g. `https://localhost:${port}`), not the auth path. better-auth appends `/api/auth` automatically.
+> **Important:** `BETTER_AUTH_URL` must be the **base server URL** (e.g. `https://localhost:${port}`)
 
-### Frontend (`apps/frontend/.env.development`)
+#### Frontend (`apps/frontend/.env.development`)
 
 | Variable | Required | Description | Example |
 |----------|:--------:|-------------|---------|
 | `VITE_API_URL` | Yes | Backend URL for auth client | `http://localhost:8000` |
+
+---
 
 ### OAuth Callback URLs
 
@@ -266,7 +265,7 @@ The practical win: our soft-blue, soft-pink, and soft-indigo card variants all f
 
 I just wanted to learn monorepo and how it works. It was a struggle to figure out types. I planned my entire skeleton first, with types, and validations to prevent myself from getting overwhelmed.
 
-### Analytics time bucketing: adaptive vs. fixed
+### Analytics time groups: adaptive vs. fixed
 
 A poll that's been live for 10 minutes and a poll that's been live for 10 days need very different chart granularity.
 
