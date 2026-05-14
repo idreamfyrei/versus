@@ -98,7 +98,6 @@ export const updatePollSchema = z.object({
 export type UpdatePollInput = z.infer<typeof updatePollSchema>;
 
 export const claimPollSchema = z.object({
-  shareId: z.string().min(1).describe("The public share identifier of the poll."),
   adminKey: z.string().min(1).describe("The admin key used to claim poll ownership."),
 }).describe("Payload for claiming ownership of an anonymous poll.");
 

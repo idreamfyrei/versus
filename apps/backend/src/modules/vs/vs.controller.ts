@@ -646,14 +646,12 @@ export const claimPoll = async (
   next: NextFunction,
 ) => {
   try {
-    const { shareId, adminKey } = req.body;
-    const poll = await Poll.findOne({ shareId });
-    if (!poll) return throwApiError(404, ErrorCode.POLL_NOT_FOUND);
+    const { adminKey } = req.body;
+    const keyHash = hashAdminKey(adminKey);
+    const poll = await Poll.findOne({ adminKeyHash: keyHash });
+    if (!poll) return throwApiError(404, ErrorCode.POLL_NOT_FOUND, "No poll found with that admin key");
     if (poll.creator)
       throwApiError(400, ErrorCode.FORBIDDEN, "Poll already has an owner");
-    if (!poll.adminKeyHash || hashAdminKey(adminKey) !== poll.adminKeyHash) {
-      throwApiError(403, ErrorCode.INVALID_ADMIN_KEY);
-    }
 
     poll.creator = new mongoose.Types.ObjectId(req.user!.id);
     poll.adminKeyHash = undefined;

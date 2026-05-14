@@ -131,7 +131,6 @@ export function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<PollStatus | "all">("all");
   const [showClaim, setShowClaim] = useState(false);
-  const [claimShareId, setClaimShareId] = useState("");
   const [claimAdminKey, setClaimAdminKey] = useState("");
   const [claiming, setClaiming] = useState(false);
 
@@ -151,21 +150,20 @@ export function Dashboard() {
   };
 
   const handleClaim = async () => {
-    if (!claimShareId.trim() || !claimAdminKey.trim()) {
-      toast.error("Both fields are required");
+    if (!claimAdminKey.trim()) {
+      toast.error("Admin key is required");
       return;
     }
     setClaiming(true);
     try {
-      await api.post("/vs/claim", { shareId: claimShareId.trim(), adminKey: claimAdminKey.trim() });
+      await api.post("/vs/claim", { adminKey: claimAdminKey.trim() });
       toast.success("Poll claimed! It now appears in your dashboard.");
       setShowClaim(false);
-      setClaimShareId("");
       setClaimAdminKey("");
       const updated = await api.get<PollListItem[]>("/vs");
       setPolls(updated);
     } catch (err: any) {
-      toast.error(err?.message || "Failed to claim poll. Check your share ID and admin key.");
+      toast.error(err?.message || "Failed to claim poll. Check your admin key.");
     } finally {
       setClaiming(false);
     }
@@ -211,20 +209,13 @@ export function Dashboard() {
             <KeyRound size={20} className="text-primary shrink-0 mt-0.5" />
             <div>
               <p className="font-bold text-sm">Claim an anonymous poll</p>
-              <p className="text-xs text-muted-foreground mt-0.5">Created a poll without signing in? Enter the share ID and admin key to link it to your account.</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Created a poll without signing in? Paste your admin key to link it to your account.</p>
             </div>
           </div>
           <div className="flex flex-col sm:flex-row gap-3">
             <input
               type="text"
-              placeholder="Share ID (from the poll URL)"
-              value={claimShareId}
-              onChange={(e) => setClaimShareId(e.target.value)}
-              className="flex-1 px-4 py-2.5 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-            />
-            <input
-              type="text"
-              placeholder="Admin key"
+              placeholder="Paste your admin key"
               value={claimAdminKey}
               onChange={(e) => setClaimAdminKey(e.target.value)}
               className="flex-1 px-4 py-2.5 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
