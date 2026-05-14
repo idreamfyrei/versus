@@ -281,7 +281,7 @@ export function Landing() {
       <section className="relative overflow-hidden">
         <WaveBg />
 
-        <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-8 pt-16 pb-20">
+        <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-8 pt-16 pb-20 text-center">
           <p
             className="inline-flex items-center gap-2 rounded-full bg-primary/8 px-4 py-1.5 text-xs font-semibold tracking-wide text-primary animate-fade-slide-in"
           >
@@ -289,7 +289,7 @@ export function Landing() {
             Polls that actually get answered
           </p>
 
-          <h1 className="mt-6 max-w-4xl text-5xl sm:text-6xl md:text-[5.5rem] font-black leading-[0.92] tracking-[-0.04em]">
+          <h1 className="mt-6 mx-auto max-w-4xl text-5xl sm:text-6xl md:text-[5.5rem] font-black leading-[0.92] tracking-[-0.04em]">
             {"Ask once. Know instantly.".split(" ").map((word, i) => (
               <span
                 key={i}
@@ -302,14 +302,14 @@ export function Landing() {
           </h1>
 
           <p
-            className="mt-6 max-w-lg text-lg font-medium leading-relaxed text-muted-foreground animate-slide-up"
+            className="mt-6 mx-auto max-w-lg text-lg font-medium leading-relaxed text-muted-foreground animate-slide-up"
             style={{ animationDelay: "600ms" }}
           >
             Create a poll in seconds, drop a link anywhere, and watch
             your group align in real time. No apps, no accounts, no chaos.
           </p>
 
-          <div className="mt-8 flex gap-3 animate-slide-up" style={{ animationDelay: "700ms" }}>
+          <div className="mt-8 flex justify-center gap-3 animate-slide-up" style={{ animationDelay: "700ms" }}>
             <Link
               to="/vs/new"
               className="group inline-flex items-center gap-2 rounded-full bg-foreground px-7 py-3.5 text-sm font-bold tracking-wide text-background transition-all duration-200 hover:scale-[1.04] active:scale-[0.96] hover:shadow-lg"
