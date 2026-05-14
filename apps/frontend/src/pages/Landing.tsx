@@ -52,36 +52,48 @@ interface CardProps {
 
 const cardStyles = {
   light: {
-    bg: "bg-card",
+    bg: "bg-gradient-to-br from-white to-[oklch(0.97_0.005_250)]",
     text: "text-foreground",
     sub: "text-muted-foreground",
     label: "bg-foreground/5 text-foreground/60",
     icon: "border-foreground/15 text-foreground/70",
     glow: "oklch(0.12 0.01 250 / 0.08)",
+    border: "rgba(0,0,0,0.06)",
+    shadow: "0 2px 0 0 rgba(0,0,0,0.03)",
+    hoverShadow: "0 4px 0 0 rgba(0,0,0,0.04)",
   },
   "soft-blue": {
-    bg: "bg-[oklch(0.95_0.03_250)]",
+    bg: "bg-gradient-to-br from-[oklch(0.97_0.02_250)] to-[oklch(0.93_0.04_260)]",
     text: "text-foreground",
     sub: "text-muted-foreground",
     label: "bg-[oklch(0.5_0.15_264_/_0.1)] text-[oklch(0.4_0.15_264)]",
     icon: "border-[oklch(0.5_0.15_264_/_0.25)] text-[oklch(0.45_0.15_264)]",
     glow: "oklch(0.5 0.15 264 / 0.15)",
+    border: "oklch(0.85 0.05 260 / 0.6)",
+    shadow: "0 2px 0 0 oklch(0.7 0.06 264 / 0.15)",
+    hoverShadow: "0 4px 0 0 oklch(0.6 0.1 264 / 0.18)",
   },
   "soft-pink": {
-    bg: "bg-[oklch(0.96_0.02_340)]",
+    bg: "bg-gradient-to-br from-[oklch(0.98_0.01_340)] to-[oklch(0.94_0.03_350)]",
     text: "text-foreground",
     sub: "text-muted-foreground",
     label: "bg-[oklch(0.7_0.08_340_/_0.15)] text-[oklch(0.45_0.08_340)]",
     icon: "border-[oklch(0.7_0.08_340_/_0.3)] text-[oklch(0.5_0.08_340)]",
     glow: "oklch(0.7 0.08 340 / 0.12)",
+    border: "oklch(0.88 0.04 340 / 0.6)",
+    shadow: "0 2px 0 0 oklch(0.75 0.05 340 / 0.15)",
+    hoverShadow: "0 4px 0 0 oklch(0.65 0.07 340 / 0.18)",
   },
   "soft-indigo": {
-    bg: "bg-[oklch(0.94_0.04_280)]",
+    bg: "bg-gradient-to-br from-[oklch(0.96_0.02_280)] to-[oklch(0.92_0.05_290)]",
     text: "text-foreground",
     sub: "text-muted-foreground",
     label: "bg-[oklch(0.5_0.12_280_/_0.1)] text-[oklch(0.4_0.12_280)]",
     icon: "border-[oklch(0.5_0.12_280_/_0.25)] text-[oklch(0.45_0.12_280)]",
     glow: "oklch(0.5 0.12 280 / 0.12)",
+    border: "oklch(0.85 0.06 280 / 0.6)",
+    shadow: "0 2px 0 0 oklch(0.7 0.07 280 / 0.15)",
+    hoverShadow: "0 4px 0 0 oklch(0.6 0.09 280 / 0.18)",
   },
 };
 
@@ -109,11 +121,13 @@ function BentoCard({ variant, badge, metric, metricSuffix, subtitle, desc, icon,
         className={`group relative flex h-[380px] flex-col rounded-3xl p-7 ${s.bg} ${s.text} cursor-pointer overflow-hidden`}
         style={{
           transform: `rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) ${hovering ? "scale(1.02)" : "scale(1)"}`,
-          transition: "transform 0.2s ease-out, box-shadow 0.3s ease",
+          transition: "transform 0.2s ease-out, box-shadow 0.3s ease, border-color 0.3s ease",
           transformStyle: "preserve-3d",
+          border: `1px solid ${s.border}`,
+          borderBottom: `3px solid ${s.border}`,
           boxShadow: hovering
-            ? "0 25px 50px -15px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.03)"
-            : "0 8px 30px -15px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.03)",
+            ? `0 25px 50px -15px rgba(0,0,0,0.15), ${s.hoverShadow}, inset 0 1px 0 0 rgba(255,255,255,0.6)`
+            : `0 8px 30px -15px rgba(0,0,0,0.08), ${s.shadow}, inset 0 1px 0 0 rgba(255,255,255,0.5)`,
         }}
       >
         {badge && (
