@@ -7,7 +7,7 @@ export interface IAnswer {
 
 export interface IResponse extends Document {
   poll: mongoose.Types.ObjectId;
-  respondent: mongoose.Types.ObjectId | null;
+  respondent?: mongoose.Types.ObjectId;
   fingerprint?: string;
   device: {
     type: string;
@@ -31,7 +31,7 @@ const AnswerSchema = new Schema<IAnswer>(
 const ResponseSchema = new Schema<IResponse>(
   {
     poll: { type: Schema.Types.ObjectId, ref: "Poll", required: true, index: true },
-    respondent: { type: Schema.Types.ObjectId, ref: "user", default: null },
+    respondent: { type: Schema.Types.ObjectId, ref: "user" },
     fingerprint: { type: String },
     device: {
       type: { type: String, default: "unknown" },
