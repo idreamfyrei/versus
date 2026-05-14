@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 import { nanoid } from "nanoid";
 import { createHash } from "crypto";
-import pkg from "ua-parser-js";
+import { UAParser } from "ua-parser-js";
 import mongoose from "mongoose";
 import { ErrorCode } from "@versus/shared";
 import { Poll, type IPoll } from "../../common/models/poll.model.js";
@@ -10,15 +10,18 @@ import { sendSuccess, throwApiError } from "../../common/utils/response.js";
 import { generateFingerprint } from "../../common/utils/fingerprint.js";
 import { getIO } from "../socket/index.js";
 
-const { UAParser } = pkg;
-
 const hashAdminKey = (key: string) =>
   createHash("sha256").update(key).digest("hex");
 
 const findPollBySlugOrId = async (slugOrId: string): Promise<IPoll | null> => {
   const poll = await Poll.findOne({ slug: slugOrId });
   if (poll) return poll;
-  return Poll.findOne({ shareId: slugOrId });
+  const byShareId = await Poll.findOne({ shareId: slugOrId });
+  if (byShareId) return byShareId;
+  if (mongoose.Types.ObjectId.isValid(slugOrId)) {
+    return Poll.findById(slugOrId);
+  }
+  return null;
 };
 
 const checkExpiry = async (poll: IPoll): Promise<IPoll> => {

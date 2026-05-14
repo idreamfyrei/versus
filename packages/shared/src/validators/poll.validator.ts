@@ -1,6 +1,6 @@
 import { z } from "zod/v4";
 
-export const slugSchema = z
+const slugSchema = z
   .string()
   .min(3)
   .max(50)
@@ -80,15 +80,10 @@ export const createPollSchema = z.object({
     .describe("The ISO datetime when the poll should expire."),
 }).describe("Payload for creating a poll.");
 
-export const updatePollSchema = createPollSchema
-  .partial()
-  .describe("Payload for updating a poll.");
-
 export const claimPollSchema = z.object({
   shareId: z.string().min(1).describe("The public share identifier of the poll."),
   adminKey: z.string().min(1).describe("The admin key used to claim poll ownership."),
 }).describe("Payload for claiming ownership of an anonymous poll.");
 
 export type CreatePollInput = z.infer<typeof createPollSchema>;
-export type UpdatePollInput = z.infer<typeof updatePollSchema>;
 export type ClaimPollInput = z.infer<typeof claimPollSchema>;

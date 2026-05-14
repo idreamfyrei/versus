@@ -22,13 +22,6 @@ export type {
 } from "./types/poll.js";
 
 export type {
-  PollResponse,
-  DeviceInfo,
-  ResponseAnswer,
-  SubmitResponseInput,
-} from "./types/response.js";
-
-export type {
   AnalyticsData,
   DeviceBreakdownItem,
   PlatformBreakdownItem,
@@ -41,15 +34,7 @@ export type {
 
 export {
   createPollSchema,
-  updatePollSchema,
   claimPollSchema,
-  slugSchema,
-} from "./validators/poll.validator.js";
-export type {
-  CreatePollInput as CreatePollSchemaInput,
-  UpdatePollInput as UpdatePollSchemaInput,
-  ClaimPollInput as ClaimPollSchemaInput,
 } from "./validators/poll.validator.js";
 
 export { submitResponseSchema } from "./validators/response.validator.js";
-export type { SubmitResponseInput as SubmitResponseSchemaInput } from "./validators/response.validator.js";

@@ -11,7 +11,6 @@ export const ErrorCode = {
   INVALID_ADMIN_KEY: "INVALID_ADMIN_KEY",
   VALIDATION_ERROR: "VALIDATION_ERROR",
   SLUG_TAKEN: "SLUG_TAKEN",
-  RATE_LIMITED: "RATE_LIMITED",
   INTERNAL_ERROR: "INTERNAL_ERROR",
 } as const;
 
@@ -30,6 +29,5 @@ export const ErrorMessage: Record<ErrorCode, string> = {
   [ErrorCode.INVALID_ADMIN_KEY]: "Invalid admin key",
   [ErrorCode.VALIDATION_ERROR]: "Validation failed",
   [ErrorCode.SLUG_TAKEN]: "This slug is already taken",
-  [ErrorCode.RATE_LIMITED]: "Too many requests. Please try again later",
   [ErrorCode.INTERNAL_ERROR]: "An unexpected error occurred",
 };

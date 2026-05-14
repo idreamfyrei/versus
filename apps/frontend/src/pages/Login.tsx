@@ -12,11 +12,11 @@ export function Login() {
   }, [isAuthenticated, navigate]);
 
   const handleGoogle = async () => {
-    await authClient.signIn.social({ provider: "google", callbackURL: "/dashboard" });
+    await authClient.signIn.social({ provider: "google", callbackURL: `${window.location.origin}/dashboard` });
   };
 
   const handleGithub = async () => {
-    await authClient.signIn.social({ provider: "github", callbackURL: "/dashboard" });
+    await authClient.signIn.social({ provider: "github", callbackURL: `${window.location.origin}/dashboard` });
   };
 
   if (isLoading) return null;
