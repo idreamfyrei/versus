@@ -282,7 +282,7 @@ export function Analytics() {
                 <YAxis type="category" dataKey="optionText" tick={{ fontSize: 12 }} width={140} tickLine={false} axisLine={false} />
                 <Tooltip
                   contentStyle={{ borderRadius: 12, border: "1px solid #e2e8f0", fontSize: 12 }}
-                  formatter={(value: number, _: string, props: any) => [`${value} (${props.payload.percentage}%)`, "Votes"]}
+                  formatter={(value: any, _: any, props: any) => [`${value} (${props.payload.percentage}%)`, "Votes"]}
                 />
                 <Bar dataKey="count" fill="#4f46e5" radius={[0, 6, 6, 0]} barSize={24} />
               </BarChart>

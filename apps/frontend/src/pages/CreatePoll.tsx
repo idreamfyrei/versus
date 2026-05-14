@@ -99,7 +99,7 @@ export function CreatePoll() {
       const body: CreatePollInput = {
         title: title.trim(),
         description: description.trim() || undefined,
-        questions: questions.map((q, i) => ({
+        questions: questions.map((q) => ({
           text: q.text.trim(),
           options: q.options.map((o) => ({ text: o.text.trim() })),
           isMandatory: q.isMandatory,
