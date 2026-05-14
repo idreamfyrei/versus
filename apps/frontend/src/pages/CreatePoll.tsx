@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 import { useAuth } from "@/hooks/useAuth";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
-import { Plus, Trash2, ArrowLeft, ArrowRight, Rocket, Copy, Check, AlertTriangle, Sparkles, ExternalLink, Share2, PartyPopper } from "lucide-react";
+import { Plus, Trash2, ArrowLeft, ArrowRight, Rocket, Copy, Check, AlertTriangle, Sparkles, ExternalLink, PartyPopper } from "lucide-react";
 import type { Poll, CreatePollInput, CreatePollResponse } from "@versus/shared";
 
 interface QuestionDraft {
