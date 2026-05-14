@@ -93,6 +93,7 @@ export const updatePollSchema = z.object({
     .pipe(z.iso.datetime())
     .refine((val) => new Date(val) > new Date(), "Expiry must be in the future")
     .optional(),
+  adminKey: z.string().optional(),
 }).describe("Payload for updating a draft poll.");
 
 export type UpdatePollInput = z.infer<typeof updatePollSchema>;
