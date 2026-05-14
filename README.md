@@ -33,16 +33,15 @@ Versus is a full-stack survey/poll platform. No sign-up is required to create or
 
 ## Table of Contents
 
-- [Tech Stack](#-tech-stack)
-- [Project Structure](#-project-structure)
-- [Getting Started](#-getting-started)
-- [Why I Built It This Way](#-why-I-built-it-this-way)
-- [Architecture & Design Decisions](#-architecture--design-decisions)
-- [Application Flow](#-application-flow)
-- [API Reference](#-api-reference)
-- [Real-Time Events](#-real-time-events)
-- [Deployment](#-deployment)
-- [Future Improvements](#-future-improvements)
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [Getting Started](#getting-started)
+- [Why I Built It This Way](#why-I-built-it-this-way)
+- [Architecture & Design Decisions](#architecture--design-decisions)
+- [Application Flow](#application-flow)
+- [API Reference](#api-reference)
+- [Real-Time Events](#real-time-events)
+- [Future Improvements](#future-improvements)
 
 ---
 
