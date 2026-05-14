@@ -76,11 +76,11 @@ export function Analytics() {
   useEffect(() => {
     async function load() {
       try {
-        const [pollData, analyticsData] = await Promise.all([
-          api.get<{ poll: Poll }>(`/vs/${id}`).then((d) => (d as any).poll || d),
+        const [{ poll: pollData }, analyticsData] = await Promise.all([
+          api.get<{ poll: Poll }>(`/vs/${id}`),
           api.get<AnalyticsData>(`/vs/${id}/analytics`),
         ]);
-        setPoll(pollData as Poll);
+        setPoll(pollData);
         setAnalytics(analyticsData);
         prevTotal.current = analyticsData.totalResponses;
       } catch (err: any) {

@@ -10,6 +10,8 @@ import { globalErrorHandler } from "./common/utils/response.js";
 
 const app: Express = express();
 
+app.set("trust proxy", 1);
+
 app.use(
   cors({
     origin: env.CLIENT_URL,

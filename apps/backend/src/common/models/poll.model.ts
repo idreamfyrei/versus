@@ -60,7 +60,7 @@ const PollSchema = new Schema<IPoll>(
   {
     title: { type: String, required: true, trim: true, maxlength: 200 },
     description: { type: String, trim: true, maxlength: 2000 },
-    creator: { type: Schema.Types.ObjectId, ref: "user", default: null },
+    creator: { type: Schema.Types.ObjectId, ref: "user" },
     shareId: { type: String, required: true, unique: true, index: true },
     slug: { type: String, unique: true, sparse: true, lowercase: true, trim: true },
     adminKeyHash: { type: String },

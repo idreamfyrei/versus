@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import { authClient } from "@/lib/auth";
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect } from "react";
@@ -6,18 +6,23 @@ import { ArrowRight } from "lucide-react";
 
 export function Login() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { isAuthenticated, isLoading } = useAuth();
 
+  const redirectTo = searchParams.get("redirect") || "/dashboard";
+
   useEffect(() => {
-    if (isAuthenticated) navigate("/dashboard", { replace: true });
-  }, [isAuthenticated, navigate]);
+    if (isAuthenticated) navigate(redirectTo, { replace: true });
+  }, [isAuthenticated, navigate, redirectTo]);
+
+  const callbackURL = `${window.location.origin}${redirectTo}`;
 
   const handleGoogle = async () => {
-    await authClient.signIn.social({ provider: "google", callbackURL: `${window.location.origin}/dashboard` });
+    await authClient.signIn.social({ provider: "google", callbackURL });
   };
 
   const handleGithub = async () => {
-    await authClient.signIn.social({ provider: "github", callbackURL: `${window.location.origin}/dashboard` });
+    await authClient.signIn.social({ provider: "github", callbackURL });
   };
 
   if (isLoading) return null;

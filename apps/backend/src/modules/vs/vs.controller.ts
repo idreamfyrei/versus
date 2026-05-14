@@ -159,7 +159,7 @@ export const createPoll = async (
       slug,
       shareId,
       expiresAt: expiresAt ? new Date(expiresAt) : undefined,
-      creator: req.user ? new mongoose.Types.ObjectId(req.user.id) : null,
+      creator: req.user ? new mongoose.Types.ObjectId(req.user.id) : undefined,
       adminKeyHash,
     });
 
@@ -295,12 +295,14 @@ export const getPoll = async (
       return;
     }
 
-    const ipHash = hashIp(req.ip ?? req.socket.remoteAddress ?? "unknown");
-    const viewResult = await Poll.updateOne(
-      { _id: poll._id, viewerHashes: { $ne: ipHash } },
-      { $inc: { views: 1 }, $addToSet: { viewerHashes: ipHash } },
-    );
-    // viewResult.modifiedCount === 0 means this IP already viewed — no increment
+    const isCreator = req.user && poll.creator?.toString() === req.user.id;
+    if (!isCreator) {
+      const ipHash = hashIp(req.ip ?? req.socket.remoteAddress ?? "unknown");
+      await Poll.updateOne(
+        { _id: poll._id, viewerHashes: { $ne: ipHash } },
+        { $inc: { views: 1 }, $addToSet: { viewerHashes: ipHash } },
+      );
+    }
 
     let hasResponded = false;
     if (req.user) {

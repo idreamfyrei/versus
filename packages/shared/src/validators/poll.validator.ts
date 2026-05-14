@@ -87,7 +87,7 @@ export const updatePollSchema = z.object({
   isAnonymous: z.boolean().optional(),
   showCreatorName: z.boolean().optional(),
   enableToast: z.boolean().optional(),
-  slug: slugSchema.optional(),
+  slug: z.union([slugSchema, z.literal("")]).optional(),
   expiresAt: z
     .string()
     .pipe(z.iso.datetime())

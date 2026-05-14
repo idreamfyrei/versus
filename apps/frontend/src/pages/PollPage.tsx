@@ -233,7 +233,7 @@ export function PollPage() {
         <div className="bg-primary/5 border border-primary/15 rounded-2xl p-4 mb-6">
           <p className="text-sm font-medium text-primary-dark">
             This is your poll!{" "}
-            <Link to="/login" className="underline hover:text-primary">Sign in</Link>{" "}
+            <Link to={`/login?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`} className="underline hover:text-primary">Sign in</Link>{" "}
             to claim it and access full analytics.
           </p>
         </div>
@@ -246,7 +246,7 @@ export function PollPage() {
             <p className="font-bold text-amber-800">Sign in to vote</p>
             <p className="text-sm text-amber-700 mt-0.5">This poll requires an account to prevent duplicate votes.</p>
           </div>
-          <Link to="/login" className="px-4 py-2 rounded-full bg-foreground text-background text-sm font-bold hover:opacity-90 transition-all shrink-0">
+          <Link to={`/login?redirect=${encodeURIComponent(window.location.pathname)}`} className="px-4 py-2 rounded-full bg-foreground text-background text-sm font-bold hover:opacity-90 transition-all shrink-0">
             Sign in
           </Link>
         </div>

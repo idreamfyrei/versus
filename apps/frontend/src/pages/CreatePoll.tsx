@@ -1,10 +1,10 @@
-import { useState } from "react";
-import { useNavigate } from "react-router";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router";
 import { useAuth } from "@/hooks/useAuth";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 import { Plus, Trash2, ArrowLeft, ArrowRight, Rocket, Copy, Check, AlertTriangle, Sparkles, ExternalLink, PartyPopper } from "lucide-react";
-import type { Poll, CreatePollInput, CreatePollResponse } from "@versus/shared";
+import type { Poll, CreatePollInput, CreatePollResponse, PublicPollView } from "@versus/shared";
 
 interface QuestionDraft {
   text: string;
@@ -25,11 +25,13 @@ function defaultExpiry(): string {
 
 export function CreatePoll() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { isAuthenticated } = useAuth();
 
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [saving, setSaving] = useState(false);
   const [activating, setActivating] = useState(false);
+  const [loadingDraft, setLoadingDraft] = useState(false);
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -45,6 +47,43 @@ export function CreatePoll() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [copiedKey, setCopiedKey] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
+
+  useEffect(() => {
+    const editId = searchParams.get("edit");
+    if (!editId) return;
+    setLoadingDraft(true);
+    api.get<PublicPollView>(`/vs/${editId}`)
+      .then((data) => {
+        const p = data.poll;
+        if (p.status !== "draft") {
+          toast.error("This poll is already active and cannot be edited.");
+          navigate("/dashboard", { replace: true });
+          return;
+        }
+        setSavedPoll(p);
+        setTitle(p.title);
+        setDescription(p.description || "");
+        setIsAnonymous(p.isAnonymous);
+        setShowCreatorName(p.showCreatorName ?? false);
+        setEnableToast(p.enableToast ?? false);
+        setSlug(p.slug || "");
+        const exp = new Date(p.expiresAt);
+        exp.setMinutes(exp.getMinutes() - exp.getTimezoneOffset());
+        setExpiresAt(exp.toISOString().slice(0, 16));
+        setQuestions(
+          p.questions.map((q) => ({
+            text: q.text,
+            options: q.options.map((o) => ({ text: o.text })),
+            isMandatory: q.isMandatory,
+          })),
+        );
+      })
+      .catch((err: any) => {
+        toast.error(err?.message || "Failed to load draft");
+        navigate("/dashboard", { replace: true });
+      })
+      .finally(() => setLoadingDraft(false));
+  }, []);
 
   const validate = (): boolean => {
     const e: Record<string, string> = {};
@@ -113,7 +152,8 @@ export function CreatePoll() {
       };
 
       if (savedPoll) {
-        const updateBody = adminKey ? { ...body, adminKey } : body;
+        const updateBody: Record<string, unknown> = { ...body, slug: slug.trim() || "" };
+        if (adminKey) updateBody.adminKey = adminKey;
         const data = await api.patch<{ poll: Poll }>(`/vs/${savedPoll._id}`, updateBody);
         setSavedPoll(data.poll);
       } else {
@@ -155,6 +195,19 @@ export function CreatePoll() {
   const shareUrl = savedPoll
     ? `${window.location.origin}/vs/${savedPoll.slug || savedPoll.shareId}`
     : "";
+
+  if (loadingDraft) {
+    return (
+      <div className="mx-auto max-w-2xl px-4 sm:px-8 py-10">
+        <div className="space-y-6">
+          <div className="h-8 w-2/3 animate-shimmer rounded" />
+          <div className="h-4 w-1/3 animate-shimmer rounded" />
+          <div className="h-40 animate-shimmer rounded-2xl" />
+          <div className="h-40 animate-shimmer rounded-2xl" />
+        </div>
+      </div>
+    );
+  }
 
   if (step === 2 && savedPoll) {
     return (
@@ -326,6 +379,29 @@ export function CreatePoll() {
             </button>
           )}
         </div>
+
+        <button
+          onClick={() => {
+            setSavedPoll(null);
+            setAdminKey(null);
+            setStep(1);
+            setTitle("");
+            setDescription("");
+            setQuestions([defaultQuestion()]);
+            setSlug("");
+            setExpiresAt(defaultExpiry());
+            setIsAnonymous(false);
+            setShowCreatorName(false);
+            setEnableToast(false);
+            setErrors({});
+            setCopiedKey(false);
+            setCopiedLink(false);
+          }}
+          className="mt-4 text-sm text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-1.5"
+        >
+          <Plus size={14} />
+          Create another poll
+        </button>
       </div>
     );
   }
