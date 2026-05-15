@@ -36,7 +36,7 @@ Versus is a full-stack survey/poll platform. No sign-up is required to create or
 - [Tech Stack](#tech-stack)
 - [Project Structure](#project-structure)
 - [Getting Started](#getting-started)
-- [Why I Built It This Way](#why-I-built-it-this-way)
+- [Why I Built It This Way](#why-i-built-it-this-way)
 - [Architecture & Design Decisions](#architecture--design-decisions)
 - [Application Flow](#application-flow)
 - [API Reference](#api-reference)
@@ -354,7 +354,7 @@ User fills form (title, questions, options, settings)
                                        ▼
                                 "Save this key!" warning
                                        │
-                                PATCH /api/vs/:id/activate (key in header) ──> active
+                                PATCH /api/vs/:id/activate (key in body) ──> active
 ```
 
 ### Responding to a Poll
@@ -407,6 +407,7 @@ All routes prefixed with `/api/vs`. Auth via cookies (better-auth session).
 | `POST` | `/` | optional | Create poll (auth'd = account, anon = returns admin key) |
 | `GET` | `/` | required | List user's polls (dashboard) |
 | `GET` | `/:slugOrId` | -- | Get poll by slug or shareId (increments views) |
+| `PATCH` | `/:id` | required | Edit draft poll (draft status only) |
 | `POST` | `/:slugOrId/respond` | optional | Submit response |
 | `PATCH` | `/:id/activate` | optional | Draft -> active |
 | `PATCH` | `/:id/close` | optional | Stop accepting responses |
