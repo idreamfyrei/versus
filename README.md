@@ -34,6 +34,7 @@ Versus is a full-stack survey/poll platform. No sign-up is required to create or
 ## Table of Contents
 
 - [Tech Stack](#tech-stack)
+- [Features](#features)
 - [Project Structure](#project-structure)
 - [Getting Started](#getting-started)
 - [Why I Built It This Way](#why-i-built-it-this-way)
@@ -59,6 +60,24 @@ Versus is a full-stack survey/poll platform. No sign-up is required to create or
 |  **Charts** | Recharts | Bar charts, donut charts, sparklines |
 |  **Icons** | Lucide React | Consistent icon set |
 |  **Monorepo** | pnpm workspaces | Shared package across apps |
+
+---
+
+## Features
+
+- **Instant poll creation** — no account required. Fill a form, get a shareable link.
+- **Two modes** — anonymous polls (anyone votes, IP+UA fingerprint dedup) or authenticated polls (OAuth login, one vote per account).
+- **Multi-step creation flow** — edit → review (preview as respondents see it) → go public. Drafts auto-save.
+- **Custom slugs** — optional vanity URLs like `/vs/team-lunch` instead of random share IDs.
+- **Anonymous creator support** — get a one-time admin key to manage your poll without an account. Claim it later by signing in.
+- **Live analytics dashboard** — response momentum chart, device/platform breakdown, per-question bar charts, consensus indicators, completion rate, activity feed. All update in real time via Socket.io.
+- **Adaptive time bucketing** — analytics charts auto-adjust granularity: per-minute for fresh polls, per-hour after 6 hours, per-day after 48 hours.
+- **Duplicate prevention** — database-level unique indexes for both auth (poll + user) and anonymous (poll + fingerprint) responses. Can't be bypassed by replaying requests.
+- **FOMO toasts** — optional "Someone just voted!" notifications for poll viewers to drive engagement.
+- **Poll lifecycle** — draft → active → expired/closed → published. Auto-expiry on page visit. Publish is irreversible.
+- **Rate limiting** — per-IP throttling on create, respond, and read endpoints.
+- **Shared validation** — Zod schemas in a shared workspace package, used by both frontend and backend.
+- **Real-time everywhere** — Socket.io rooms per poll. New votes, poll closures, publishes, and deletes broadcast instantly to all viewers.
 
 ---
 
@@ -252,42 +271,19 @@ When someone votes, the analytics dashboard should update instantly. The questio
 
 I went with full broadcast. The summary payload for a poll with 5 questions and 4 options each is maybe 2KB - trivial over WebSocket. The simplicity of "server is always right, client always replaces" eliminated an entire class of bugs around stale state and missed events.
 
-### Styling: oklch over hex/rgb
+### Monorepo: pnpm workspaces
 
-Tailwind v4 supports oklch natively. We use it for all brand colors.
+I planned the entire skeleton first — types and validations — to prevent myself from getting overwhelmed by the shared package setup.
 
-**Why not just hex?** oklch is perceptually uniform - `oklch(0.55 0.15 264)` and `oklch(0.55 0.05 340)` look equally "bright" to human eyes, even though they're different hues. This means you can pick a lightness value once and swap hues freely, and everything looks balanced. With hex, `#3B82F6` (blue) and `#EC4899` (pink) at "the same saturation" look wildly different in perceived brightness.
+### Analytics: adaptive time bucketing
 
-The practical win: our soft-blue, soft-pink, and soft-indigo card variants all feel like they belong together because they share lightness/chroma values and only differ in hue.
-
-### Monorepo: pnpm workspaces without Turborepo
-
-I just wanted to learn monorepo and how it works. It was a struggle to figure out types. I planned my entire skeleton first, with types, and validations to prevent myself from getting overwhelmed.
-
-### Analytics time groups: adaptive vs. fixed
-
-A poll that's been live for 10 minutes and a poll that's been live for 10 days need very different chart granularity.
-
-**What I considered:**
-- **Fixed hourly buckets** - fine for day-old polls, useless for 30-minute-old polls (one or two bars), overwhelming for month-old polls (720 bars).
-- **Client-side rebucketing** - send raw timestamps, let the frontend aggregate. Moves computation to the client, increases payload size.
-- **Server-side adaptive bucketing** - pick the MongoDB `$dateToString` format based on poll age. Under 6 hours = per minute, under 48 hours = per hour, over 48 hours = per day.
-
-Server-side adaptive bucketing keeps payloads small and charts readable at any poll age. The frontend just needs to format the label based on whether the timestamp ends in `:00:00Z` (hourly), `:00Z` (minute), or `T00:00:00Z` (daily).
+Server-side adaptive bucketing based on poll age: under 6 hours = per minute, under 48 hours = per hour, over 48 hours = per day. Keeps payloads small and charts readable at any poll age.
 
 ---
 
 ## Architecture & Design Decisions
 
-### Shared validation (pnpm workspaces)
-
-Zod schemas live in `@versus/shared` and are consumed by both apps. This eliminates type drift between frontend form validation and backend request parsing. The package compiles to JS with `.d.ts` declarations.
-
-### Anonymous poll creation
-
-Anyone can create a poll without signing in. The server generates a `nanoid(32)` admin key, bcrypt-hashes it, and returns the raw key once. The creator must save this key - it's the only way to manage the poll without an account. Authenticated users can later **claim** an anonymous poll by providing the key.
-
-### Dual duplicate prevention
+### Duplicate prevention
 
 | Poll Type | Strategy | Index |
 |-----------|----------|-------|
@@ -306,21 +302,20 @@ Anyone can create a poll without signing in. The server generates a `nanoid(32)`
 
 Auto-expiry: when a `GET` request hits an active poll past its `expiresAt`, the server atomically updates it to `expired`.
 
-### Smart analytics time bucketing
+### Analytics dashboard
 
-| Poll Age | Bucket Size | Chart Shows |
-|----------|-------------|-------------|
-| < 6 hours | Per minute | Granular real-time spikes |
-| 6 - 48 hours | Per hour | Hourly trends |
-| > 48 hours | Per day | Daily overview |
+The creator-only analytics page (`/vs/:id/analytics`) updates live via Socket.io.
 
-### Device analytics
-
-Every response stores parsed UA data (`ua-parser-js`): device type, browser, and OS. The analytics dashboard aggregates this into donut charts.
-
-### Real-time architecture
-
-Each poll gets a Socket.io room (`vs:{pollId}`). On new response, the server computes the full updated summary and broadcasts it - clients replace state wholesale (no deltas, no merge conflicts).
+| Section | What it shows |
+|---------|---------------|
+| Overview cards | Total responses, unique views, completion rate, responses/hour. Counter pulses on new votes. |
+| Response momentum | Area chart of vote volume over time with adaptive time bucketing. Displays peak time. |
+| Device breakdown | Donut chart of mobile/desktop/tablet split, parsed from User-Agent via `ua-parser-js`. |
+| Question breakdown | Horizontal bar charts per question with vote counts, percentages, and consensus indicators (clear winner / tight race / split). |
+| Question engagement | Progress bars showing answer rate for optional (non-mandatory) questions. |
+| Platform breakdown | Browser and OS distribution across respondents. |
+| Activity feed | Rolling list of last 20 events, live-updated with fade-in animation. |
+| Creator actions | Copy link, close poll, publish results (irreversible), delete. All broadcast via Socket.io. |
 
 ### Frontend design system
 
@@ -332,26 +327,6 @@ Each poll gets a Socket.io room (`vs:{pollId}`). On new response, the server com
 | Landing cards | 3D parallax tilt (CSS `perspective` + `rotateX/Y` on mousemove) |
 | Animations | CSS `@keyframes`: slide-up, bar growth, counter pulse, shimmer |
 | Toasts | Sonner for errors and FOMO vote notifications |
-
-### Analytics dashboard
-
-The creator-only analytics page (`/vs/:id/analytics`) provides a live overview of poll performance. Everything updates in real time via Socket.io — no refresh needed.
-
-**Overview cards** — Total responses, unique views, completion rate (views → responses), and responses per hour. 
-
-**Response momentum** — An area chart (Recharts `AreaChart`) showing vote volume over time. The server picks bucket granularity based on poll age: per-minute for polls under 6 hours old, per-hour up to 48 hours, per-day beyond that. Peak time is displayed above the chart.
-
-**Device breakdown** — A donut chart splitting responses by device type (mobile, desktop, tablet), parsed from `User-Agent` via `ua-parser-js` on the backend. 
-
-**Question breakdown** — Horizontal bar charts for each question showing option vote counts and percentages. Each question card includes a consensus indicator: "Clear winner" (one option dominates), "Tight race" (top two are close), or "Split" (no standout).
-
-**Question engagement** — For optional (non-mandatory) questions, a progress bar showing what percentage of respondents chose to answer. Helps identify which questions people skip.
-
-**Platform breakdown** — Browser and OS distribution across respondents (Chrome, Safari, Firefox, etc.).
-
-**Activity feed** — A rolling list of the last 20 events, updated live. Each entry shows the event type and timestamp. New entries fade in with CSS animation.
-
-**Creator actions** — Copy share link, close poll (stops accepting responses), publish results (irreversible, makes results visible to everyone), and delete poll. Close and publish trigger Socket.io events so anyone viewing the poll sees the state change instantly.
 
 ---
 
@@ -398,22 +373,6 @@ Visitor opens /vs/:slugOrId
     ├─ Expired / Closed ──> "Poll closed" + results (if published)
     │
     └─ Draft ──> 404
-```
-
-### Analytics (Creator Only)
-
-```
-Creator opens /vs/:id/analytics
-    │
-    ├─ Overview ──> Total responses, views, completion rate, status, countdown
-    │
-    ├─ Insights ──> Response velocity chart, peak time, device/platform donuts
-    │
-    ├─ Breakdown ──> Per-question bar charts, consensus indicators
-    │
-    └─ Activity Feed ──> Rolling real-time list ("New response on Chrome/Desktop")
-    │
-    └─ All sections update live via Socket.io
 ```
 
 ---
@@ -476,8 +435,6 @@ Rooms scoped per poll: `vs:{pollId}`
 | Rich question types | Ranking, text input, scale (1-10), image options |
 | Notifications | Email or push alerts at response milestones |
 | Poll branching | Conditional questions based on previous answers |
-| Dark mode | Theme toggle |
-| i18n | Multi-language support |
 | Response comments | Optional text field for qualitative feedback |
 | Poll comparison | Compare results across multiple polls side by side |
 
