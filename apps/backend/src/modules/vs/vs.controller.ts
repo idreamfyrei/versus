@@ -297,10 +297,10 @@ export const getPoll = async (
 
     const isCreator = req.user && poll.creator?.toString() === req.user.id;
     if (!isCreator) {
-      const ipHash = hashIp(req.ip ?? req.socket.remoteAddress ?? "unknown");
+      const viewHash = generateFingerprint(req);
       await Poll.updateOne(
-        { _id: poll._id, viewerHashes: { $ne: ipHash } },
-        { $inc: { views: 1 }, $addToSet: { viewerHashes: ipHash } },
+        { _id: poll._id, viewerHashes: { $ne: viewHash } },
+        { $inc: { views: 1 }, $addToSet: { viewerHashes: viewHash } },
       );
     }
 
