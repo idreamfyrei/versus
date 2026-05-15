@@ -1,10 +1,12 @@
-import { Link } from "react-router";
+import { Link, useNavigate, useLocation } from "react-router";
 import { useAuth } from "@/hooks/useAuth";
 import { authClient } from "@/lib/auth";
 import { LogOut, LayoutDashboard, Plus } from "lucide-react";
 
 export function Navbar() {
   const { user, isAuthenticated, isLoading } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = async () => {
     await authClient.signOut();
@@ -23,13 +25,19 @@ export function Navbar() {
             <div className="h-8 w-20 rounded-full animate-shimmer" />
           ) : isAuthenticated ? (
             <>
-              <Link
-                to="/vs/new"
+              <button
+                onClick={() => {
+                  if (location.pathname === "/vs/new") {
+                    navigate("/vs/new", { replace: true, state: { reset: Date.now() } });
+                  } else {
+                    navigate("/vs/new");
+                  }
+                }}
                 className="flex items-center gap-1.5 px-4 py-2 text-sm font-bold tracking-wide rounded-full bg-foreground text-background hover:opacity-90 transition-opacity"
               >
                 <Plus size={15} />
                 CREATE
-              </Link>
+              </button>
               <Link
                 to="/dashboard"
                 className="flex items-center gap-1.5 px-3 py-2 text-sm font-semibold rounded-full hover:bg-secondary transition-colors"
@@ -54,12 +62,18 @@ export function Navbar() {
               >
                 LOG IN
               </Link>
-              <Link
-                to="/vs/new"
+              <button
+                onClick={() => {
+                  if (location.pathname === "/vs/new") {
+                    navigate("/vs/new", { replace: true, state: { reset: Date.now() } });
+                  } else {
+                    navigate("/vs/new");
+                  }
+                }}
                 className="rounded-full bg-foreground px-6 py-2.5 text-sm font-bold tracking-wide text-background hover:opacity-90 transition-opacity"
               >
                 QUICK POLL
-              </Link>
+              </button>
             </>
           )}
         </div>

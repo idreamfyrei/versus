@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router";
+import { useState, useEffect, useCallback } from "react";
+import { useNavigate, useSearchParams, useLocation } from "react-router";
 import { useAuth } from "@/hooks/useAuth";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
@@ -25,7 +25,8 @@ function defaultExpiry(): string {
 
 export function CreatePoll() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
   const { isAuthenticated } = useAuth();
 
   const [step, setStep] = useState<1 | 2 | 3>(1);
@@ -47,6 +48,32 @@ export function CreatePoll() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [copiedKey, setCopiedKey] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
+
+  const resetForm = useCallback(() => {
+    setSavedPoll(null);
+    setAdminKey(null);
+    setStep(1);
+    setTitle("");
+    setDescription("");
+    setQuestions([defaultQuestion()]);
+    setSlug("");
+    setExpiresAt(defaultExpiry());
+    setIsAnonymous(false);
+    setShowCreatorName(false);
+    setEnableToast(false);
+    setErrors({});
+    setCopiedKey(false);
+    setCopiedLink(false);
+  }, []);
+
+  useEffect(() => {
+    if (location.state?.reset) {
+      resetForm();
+      if (searchParams.has("edit")) {
+        setSearchParams({}, { replace: true });
+      }
+    }
+  }, [location.state?.reset, resetForm, searchParams, setSearchParams]);
 
   useEffect(() => {
     const editId = searchParams.get("edit");
@@ -382,20 +409,10 @@ export function CreatePoll() {
 
         <button
           onClick={() => {
-            setSavedPoll(null);
-            setAdminKey(null);
-            setStep(1);
-            setTitle("");
-            setDescription("");
-            setQuestions([defaultQuestion()]);
-            setSlug("");
-            setExpiresAt(defaultExpiry());
-            setIsAnonymous(false);
-            setShowCreatorName(false);
-            setEnableToast(false);
-            setErrors({});
-            setCopiedKey(false);
-            setCopiedLink(false);
+            resetForm();
+            if (searchParams.has("edit")) {
+              setSearchParams({}, { replace: true });
+            }
           }}
           className="mt-4 text-sm text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-1.5"
         >
