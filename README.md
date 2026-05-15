@@ -333,6 +333,26 @@ Each poll gets a Socket.io room (`vs:{pollId}`). On new response, the server com
 | Animations | CSS `@keyframes`: slide-up, bar growth, counter pulse, shimmer |
 | Toasts | Sonner for errors and FOMO vote notifications |
 
+### Analytics dashboard
+
+The creator-only analytics page (`/vs/:id/analytics`) provides a live overview of poll performance. Everything updates in real time via Socket.io — no refresh needed.
+
+**Overview cards** — Total responses, unique views, completion rate (views → responses), and responses per hour. 
+
+**Response momentum** — An area chart (Recharts `AreaChart`) showing vote volume over time. The server picks bucket granularity based on poll age: per-minute for polls under 6 hours old, per-hour up to 48 hours, per-day beyond that. Peak time is displayed above the chart.
+
+**Device breakdown** — A donut chart splitting responses by device type (mobile, desktop, tablet), parsed from `User-Agent` via `ua-parser-js` on the backend. 
+
+**Question breakdown** — Horizontal bar charts for each question showing option vote counts and percentages. Each question card includes a consensus indicator: "Clear winner" (one option dominates), "Tight race" (top two are close), or "Split" (no standout).
+
+**Question engagement** — For optional (non-mandatory) questions, a progress bar showing what percentage of respondents chose to answer. Helps identify which questions people skip.
+
+**Platform breakdown** — Browser and OS distribution across respondents (Chrome, Safari, Firefox, etc.).
+
+**Activity feed** — A rolling list of the last 20 events, updated live. Each entry shows the event type and timestamp. New entries fade in with CSS animation.
+
+**Creator actions** — Copy share link, close poll (stops accepting responses), publish results (irreversible, makes results visible to everyone), and delete poll. Close and publish trigger Socket.io events so anyone viewing the poll sees the state change instantly.
+
 ---
 
 ## Application Flow
